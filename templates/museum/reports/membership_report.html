@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Membership Report</h2>
+
+<div class="card text-white bg-primary mb-3" style="max-width: 18rem;">
+    <div class="card-header">Total Collected</div>
+    <div class="card-body">
+        <h5 class="card-title">${{ total_collected }}</h5>
+    </div>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Member</th>
+            <th>Email</th>
+            <th>Join Date</th>
+            <th>Amount Paid</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for membership in memberships %}
+        <tr>
+            <td>{{ membership.buyer_profile.user.username }}</td>
+            <td>{{ membership.buyer_profile.user.email }}</td>
+            <td>{{ membership.start_date }}</td>
+            <td>${{ membership.amount }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

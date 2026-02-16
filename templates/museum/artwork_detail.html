@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        {% if artwork.photo %}
+        <img src="{{ artwork.photo.url }}" class="img-fluid rounded" alt="{{ artwork.title }}">
+        {% else %}
+        <div class="bg-secondary text-white d-flex justify-content-center align-items-center rounded"
+            style="height: 400px;">No Image</div>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        <h1>{{ artwork.title }}</h1>
+        <h3>By <a href="{% url 'artist_detail' artwork.artist.pk %}">{{ artwork.artist.name }}</a></h3>
+        <span class="badge bg-secondary fs-6 mb-3">{{ artwork.genre.name }}</span>
+
+        <p class="lead">{{ artwork.description }}</p>
+
+        <h4 class="mt-4">Details</h4>
+        <ul class="list-group mb-4">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Creation Date
+                <span>{{ artwork.creation_date }}</span>
+            </li>
+            {% for key, value in artwork.attributes.items %}
+            <li class="list-group-item d-flex justify-content-between align-items-center text-capitalize">
+                {{ key }}
+                <span>{{ value }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <div class="d-grid gap-2">
+            <h2 class="text-primary">${{ artwork.price }}</h2>
+            {% if artwork.status == 'AVAILABLE' %}
+            {% if user.is_authenticated and user.is_buyer %}
+            <a href="{% url 'reserve_artwork' artwork.pk %}" class="btn btn-success btn-lg">Reserve Now</a>
+            {% elif user.is_authenticated %}
+            <div class="alert alert-warning">Only registered buyers can purchase artworks.</div>
+            {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-primary btn-lg">Login to
+                Purchase</a>
+            {% endif %}
+            {% else %}
+            <button class="btn btn-secondary btn-lg" disabled>{{ artwork.get_status_display }}</button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

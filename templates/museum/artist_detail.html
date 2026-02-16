@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        {% if artist.photo %}
+        <img src="{{ artist.photo.url }}" class="img-fluid rounded-circle" alt="{{ artist.name }}">
+        {% else %}
+        <div class="bg-secondary text-white d-flex justify-content-center align-items-center rounded-circle"
+            style="width: 200px; height: 200px;">No Image</div>
+        {% endif %}
+    </div>
+    <div class="col-md-8">
+        <h1>{{ artist.name }}</h1>
+        <p><strong>Nationality:</strong> {{ artist.nationality }}</p>
+        <p><strong>Birth Date:</strong> {{ artist.birth_date }}</p>
+        <p>{{ artist.biography }}</p>
+
+        <h4>Genres</h4>
+        <p>
+            {% for genre in artist.genres.all %}
+            <span class="badge bg-info text-dark">{{ genre.name }}</span>
+            {% endfor %}
+        </p>
+    </div>
+</div>
+
+<hr>
+
+<h3>Artworks by {{ artist.name }}</h3>
+<div class="row">
+    {% for artwork in artist.artworks.all %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            {% if artwork.photo %}
+            <img src="{{ artwork.photo.url }}" class="card-img-top" alt="{{ artwork.title }}"
+                style="height: 200px; object-fit: cover;">
+            {% else %}
+            <div class="bg-secondary text-white d-flex justify-content-center align-items-center"
+                style="height: 200px;">No Image</div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ artwork.title }}</h5>
+                <p class="card-text"><strong>${{ artwork.price }}</strong></p>
+                <a href="{% url 'artwork_detail' artwork.pk %}" class="btn btn-outline-primary btn-sm">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

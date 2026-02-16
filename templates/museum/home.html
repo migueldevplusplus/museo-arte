@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3">
+    <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold">Museum of Contemporary Art</h1>
+        <p class="col-md-8 fs-4">Discover the finest collection of modern art. Browse our catalog and acquire unique
+            pieces.</p>
+        <a class="btn btn-primary btn-lg" href="{% url 'catalog' %}">Browse Catalog</a>
+    </div>
+</div>
+
+<h2>Featured Artworks</h2>
+<div class="row">
+    {% for artwork in featured_artworks %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            {% if artwork.photo %}
+            <img src="{{ artwork.photo.url }}" class="card-img-top" alt="{{ artwork.title }}"
+                style="height: 200px; object-fit: cover;">
+            {% else %}
+            <div class="bg-secondary text-white d-flex justify-content-center align-items-center"
+                style="height: 200px;">No Image</div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ artwork.title }}</h5>
+                <p class="card-text">By <a href="{% url 'artist_detail' artwork.artist.pk %}">
+                        {{ artwork.artist.name }}</a></p>
+                <p class="card-text"><strong>${{ artwork.price }}</strong></p>
+                <a href="{% url 'artwork_detail' artwork.pk %}" class="btn btn-outline-primary">View Details</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
