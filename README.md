@@ -3,6 +3,8 @@
 
 Aplicación web desarrollada con **Django 6** y **MySQL** para la gestión y venta de obras de arte de un museo.
 
+DETALLES DE IMPLEMENTACIÓN DE LA BASE DE DATOS EN **modelado_bd.md**
+
 ## Requisitos Previos
 
 - **Python 3.12+**
