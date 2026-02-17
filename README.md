@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # 🎨 Museo de Arte Contemporáneo — Sistema de Venta de Obras
 
 Aplicación web desarrollada con **Django 6** y **MySQL** para la gestión y venta de obras de arte de un museo.
