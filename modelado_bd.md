@@ -8,6 +8,101 @@ Este documento explica cómo se implementó el modelado de la base de datos usan
 
 El proyecto usa **Django ORM** para definir los modelos. Django traduce automáticamente las clases Python en tablas MySQL mediante migraciones. La base de datos se llama `museum_db`.
 
+
+
+## Entidades implementadas formateadas manualmente versión clases BD:
+
+
+## USUARIO
+
+* id_usuario (PK)
+* username
+* password
+* email
+* is_buyer
+* is_employee
+* date_joined
+
+---
+
+## BUYER_PROFILE
+
+* id_buyer_profile (PK)
+* user_id (FK → Usuario)
+* credit_card_number
+* security_code
+* shipping_address
+
+---
+
+## GENERO
+
+* id_genero (PK)
+* name
+
+---
+
+## ARTISTA
+
+* id_artista (PK)
+* name
+* biography
+* birth_date
+* nationality
+* photo
+
+---
+
+## OBRA
+
+* id_obra (PK)
+* title
+* artist_id (FK → Artista)
+* genre_id (FK → Genero)
+* price
+* creation_date
+* photo
+* status
+* attributes
+
+---
+
+## MEMBRESIA
+
+* id_membresia (PK)
+* buyer_profile_id (FK → BuyerProfile)
+* start_date
+* amount
+
+---
+
+## VENTA
+
+* id_venta (PK)
+* artwork_id (FK UNIQUE → Obra)
+* buyer_id (FK → Usuario)
+* processed_by (FK → Usuario)
+* date
+* subtotal
+* iva
+* commission
+* total
+
+---
+
+# Relaciones del MER
+
+Usuario 1 —— 1 BuyerProfile
+BuyerProfile 1 —— N Membresia
+Artista N —— M Genero
+Artista 1 —— N Obra
+Genero 1 —— N Obra
+Obra 1 —— 1 Venta
+Usuario 1 —— N Venta (como comprador)
+Usuario 1 —— N Venta (como empleado que procesa)
+
+---
+
 ### Diagrama de Relaciones (ER)
 
 ```mermaid
@@ -247,3 +342,4 @@ total = subtotal + iva
 | `museum_sale` | `Sale` | museum |
 
 Django también genera tablas internas: `auth_group`, `auth_permission`, `django_session`, `django_content_type`, `django_migrations`, etc.
+
