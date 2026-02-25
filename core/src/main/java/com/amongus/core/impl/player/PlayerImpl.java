@@ -20,7 +20,7 @@ public class PlayerImpl implements Player {
         this.name = name;
         this.alive = true;
         this.connected = true;
-        this.position=new Position(0,0);
+        this.position=new Position(2500,2500);
     }
 
     //Implementa los metodos definidos en la intrface Player
@@ -39,13 +39,18 @@ public class PlayerImpl implements Player {
     }
 
     @Override
+    public void updatePosition(Position targetPos) {
+        this.position = targetPos;
+    }
+
+    @Override
     public Role getRole() {
         return role;
     }
 
     @Override
     public boolean alive() {
-        return true;
+        return this.alive;
     }
 
     @Override
@@ -56,7 +61,7 @@ public class PlayerImpl implements Player {
 
     @Override
     public void move(int deltaX, int deltaY) {
-        this.position=new Position(this.position.x()+deltaX,this.position.y()+deltaY);
+        this.position = new Position(this.position.x() + deltaX, this.position.y() + deltaY);
     }
 
     /*Metodos que usan gameSesion*/

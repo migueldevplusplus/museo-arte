@@ -29,9 +29,6 @@ public class SimpleMap implements GameMap {
      */
     @Override
     public boolean canMove(Position from, Position to) {
-        if (from == null || to == null) {
-            return false;
-        }
-        return !from.equals(to);
+        return true;
     }
 }

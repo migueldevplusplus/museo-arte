@@ -10,8 +10,12 @@ import com.amongus.core.api.session.GameSession;
 import com.amongus.core.api.state.GameState;
 import com.amongus.core.impl.event.EventBusImpl;
 import com.amongus.core.impl.map.SimpleMap;
-import com.amongus.core.impl.session.GameSesionImpl;
+import com.amongus.core.impl.session.GameSessionImpl;
+import com.amongus.core.view.GameSnapshot;
+import com.amongus.core.view.PlayerView;
+import com.amongus.core.impl.player.PlayerImpl;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -34,71 +38,57 @@ import java.util.UUID;
 
 public class GameEngine {
 
-    /*
-    * Identificador único de la sesión actual
-    * utilizable para el multiplayer.
-    * */
     private final UUID sessionId;
-
-    /*
-    * Bus de eventos del dominio
-    * permite desacoplar el core de los observadores externos
-    * */
     private final EventBus eventBus;
-
-    /*
-    * Sesión de juego activa.
-    * Contiene toda la lógic del dominio.
-    */
     private final GameSession session;
-
     private final GameMap gameMap;
-
-    /**
-     * GameEngine es la FACHADA del Core.
-     *
-     * Es el punto de entrada único para interactuar con el dominio del juego.
-     * Los módulos externos (Application, Desktop, Multiplayer) SOLO deben
-     * comunicarse con el Core a través de esta clase.
-     *
-     * Responsabilidades:
-     *  - Crear y mantener una sesión de juego
-     *  - Exponer operaciones de alto nivel (casos de uso)
-     *  - Delegar la lógica real a GameSession
-     *  - Gestionar el EventBus
-     *
-     * Importante:
-     *  - NO contiene reglas complejas
-     *  - NO conoce detalles de UI, red o persistencia
-     */
+    private PlayerId localPlayerId;
 
     public GameEngine(){
         this.sessionId = UUID.randomUUID();
         this.eventBus = new EventBusImpl();
         this.gameMap = new SimpleMap();
+        this.session = new GameSessionImpl(sessionId, eventBus, gameMap);
 
-        this.session = new GameSesionImpl(sessionId, eventBus, gameMap);
     }
 
     /* ===================== CONSULTAS ===================== */
 
-    public UUID getSessionId() {
-        return sessionId;
-    }
+    public GameSnapshot getSnapshot() {
+        List<PlayerView> playerViews = session.getPlayers().stream()
+            .map(p -> new PlayerView(p.getId(), p.alive(), p.getPosition()))
+            .toList();
 
-    public GameState getGameState() {
-        return session.getCurrentState();
+        return new GameSnapshot(session.getCurrentState(), playerViews, localPlayerId);
     }
 
     public EventBus getEventBus() {
         return eventBus;
     }
 
+    public GameState getGameState() {
+        return session.getCurrentState();
+    }
+
     /* ===================== CASOS DE USO ===================== */
 
-        public void joinPlayer(Player player) {
+    /**
+     * Crea y une a un jugador automáticamente.
+     * Así la UI no tiene que conocer PlayerImpl.
+     */
+    // Modifica tu spawnPlayer así:
+    public PlayerId spawnPlayer(String name) {
+        PlayerId newId = PlayerId.random();
+        Player player = new PlayerImpl(newId, name);
         session.addPlayer(player);
+
+        // El primer jugador que spawneamos en esta instancia será el local
+        if (this.localPlayerId == null) {
+            this.localPlayerId = newId;
+        }
+        return newId;
     }
+
 
     public void startGame() {
         session.startGame();
@@ -110,6 +100,15 @@ public class GameEngine {
 
     public void castVote(Vote vote) {
         session.castVote(vote);
+    }
+
+    // Nuevo: para reportar cuerpos desde la UI
+    public void reportBody(PlayerId reporterId, PlayerId victimId) {
+        session.reportBody(reporterId, victimId);
+    }
+
+    public PlayerId getLocalPlayerId() {
+        return localPlayerId;
     }
 
 

@@ -1,71 +1,60 @@
 package com.amongus.core.impl.player;
 
+import com.amongus.core.api.player.PlayerId;
+import com.amongus.core.impl.engine.GameEngine;
+import com.amongus.core.model.Position;
+import com.amongus.core.view.GameSnapshot;
+import com.amongus.core.view.PlayerView;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
 public class PlayerController {
-    private ShowPlayer showPlayer;
-    private int direccion;
+    private final GameEngine engine;
+    private final PlayerId localPlayerId;
+    private int direccion; // 1 derecha, -1 izquierda
 
-    public PlayerController(ShowPlayer showPlayer) {
-        this.showPlayer=showPlayer;
-        this.direccion=1;
+    public PlayerController(GameEngine engine, PlayerId localPlayerId) {
+        this.engine = engine;
+        this.localPlayerId = localPlayerId;
+        this.direccion = 1;
     }
 
     public int getDireccion() {
         return direccion;
     }
 
-    //funcion que recibe si el jugador se esta moviendo
-    //si el jugador se va hacia la izquierda
-    //y actualiza la posicion
-    public boolean playerController(){
-        //velocidad en la que se mueve el jugador
-        int speed=5;
-        boolean move=false;
-        //recibimos la direccion en la cual se quiere mover el jugador y actualizamos los datos
-        if(Gdx.input.isKeyPressed(Input.Keys.A)&&Gdx.input.isKeyPressed(Input.Keys.W)){
-            showPlayer.getPlayer().move(-speed,speed);
-            direccion=-1;
-            return move=true;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.A)&&Gdx.input.isKeyPressed(Input.Keys.S)){
-            showPlayer.getPlayer().move(-speed,-speed);
-            direccion=-1;
-            return move=true;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.D)&&Gdx.input.isKeyPressed(Input.Keys.W)){
-            showPlayer.getPlayer().move(speed,speed);
-            direccion=1;
-            return move=true;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.D)&&Gdx.input.isKeyPressed(Input.Keys.S)){
-            showPlayer.getPlayer().move(speed,-speed);
-            direccion=1;
-            return move=true;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            showPlayer.getPlayer().move(-speed,0);
-            direccion=-1;
-            return move=true;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.D)){
-            showPlayer.getPlayer().move(speed,0);
-            direccion=1;
-            return move=true;
-        }
+    /**
+     * Procesa la entrada del teclado y solicita el movimiento al engine.
+     * @return true si el jugador intentó moverse.
+     */
+    public boolean handleInput() {
+        int speed = 5;
+        float dx = 0;
+        float dy = 0;
 
-        if(Gdx.input.isKeyPressed(Input.Keys.W)){
-            showPlayer.getPlayer().move(0,speed);
-            direccion=1;
-            return move=true;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.S)){
-            showPlayer.getPlayer().move(0,-speed);
-            direccion=1;
-            return move=true;
+        // 1. Detectar dirección
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) { dx -= speed; direccion = -1; }
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) { dx += speed; direccion = 1; }
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) { dy += speed; }
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) { dy -= speed; }
+
+        if (dx != 0 || dy != 0) {
+            // 2. Obtener la posición actual desde el snapshot para calcular la nueva
+            GameSnapshot snapshot = engine.getSnapshot();
+            PlayerView me = snapshot.getPlayers().stream()
+                .filter(p -> p.getId().equals(localPlayerId))
+                .findFirst()
+                .orElse(null);
+
+            if (me != null) {
+                // 3. Pedir al motor que nos mueva (el motor validará si se puede)
+                Position currentPos = me.getPosition();
+                Position nextPos = new Position((int) (currentPos.x() + dx), (int) (currentPos.y() + dy));
+
+                engine.movePlayer(localPlayerId, nextPos);
+                return true;
+            }
         }
         return false;
     }
-
 }

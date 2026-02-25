@@ -1,5 +1,7 @@
 package com.amongus.core.api.player;
 
+import com.amongus.core.model.Position;
+
 public interface Player {
 
     PlayerId getId();
@@ -14,4 +16,8 @@ public interface Player {
     // Mutaciones controladas del estado
     void kill();
     void disconnect();
+
+    Position getPosition();
+
+    void updatePosition(Position targetPos);
 }
