@@ -9,6 +9,10 @@ public final class PlayerView {
     private final boolean alive;
     private final Position position;
 
+
+    private boolean moving;     // ← NUEVO
+    private int direction = 1;  // ← NUEVO (1 = derecha, -1 = izquierda)
+
     public PlayerView(PlayerId id, boolean alive, Position position) {
         this.id = Objects.requireNonNull(id, "Id no puede ser null");
         this.alive = alive;
@@ -18,6 +22,22 @@ public final class PlayerView {
     public PlayerId getId() {
         //hola
         return id;
+    }
+
+    public boolean isMoving() {
+        return moving;
+    }
+
+    public void setMoving(boolean moving) {
+        this.moving = moving;
+    }
+
+    public int getDirection() {
+        return direction;
+    }
+
+    public void setDirection(int direction) {
+        this.direction = direction;
     }
 
     public boolean isAlive() {

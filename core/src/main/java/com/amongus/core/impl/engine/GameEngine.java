@@ -45,6 +45,7 @@ public class GameEngine {
     private final GameMap gameMap;
     private PlayerId localPlayerId;
 
+
     public GameEngine(){
         this.sessionId = UUID.randomUUID();
         this.eventBus = new EventBusImpl();
@@ -57,12 +58,18 @@ public class GameEngine {
 
     public GameSnapshot getSnapshot() {
         List<PlayerView> playerViews = session.getPlayers().stream()
-            .map(p -> new PlayerView(p.getId(), p.alive(), p.getPosition()))
+            .map(p -> {
+                PlayerView view = new PlayerView(p.getId(), p.alive(), p.getPosition());
+                if (p instanceof PlayerImpl pi) {
+                    view.setMoving(pi.isMoving());
+                    view.setDirection(pi.getDirection());
+                }
+                return view;
+            })
             .toList();
 
         return new GameSnapshot(session.getCurrentState(), playerViews, localPlayerId);
     }
-
     public EventBus getEventBus() {
         return eventBus;
     }
@@ -140,7 +147,19 @@ public class GameEngine {
     }
 
     public void movePlayer(PlayerId playerId, Object destination) {
-        session.movePlayer(playerId, destination);
+       session.movePlayer(playerId, destination);
+    }
+
+    public void setPlayerMoving(PlayerId id, boolean moving, int direction) {
+        session.getPlayers().stream()
+            .filter(p -> p.getId().equals(id))
+            .filter(p -> p instanceof PlayerImpl)
+            .map(p -> (PlayerImpl) p)
+            .findFirst()
+            .ifPresent(pi -> {
+                pi.setMoving(moving);
+                pi.setDirection(direction);
+            });
     }
 
     public void castVote(Vote vote) {
@@ -155,6 +174,5 @@ public class GameEngine {
     public PlayerId getLocalPlayerId() {
         return localPlayerId;
     }
-
 
 }

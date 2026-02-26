@@ -15,6 +15,9 @@ public class PlayerImpl implements Player {
     private boolean alive;
     private boolean connected;
 
+    private boolean moving = false;
+    private int direction = 1;
+
     public PlayerImpl(PlayerId id, String name){
         this.id = id;
         this.name = name;
@@ -76,5 +79,21 @@ public class PlayerImpl implements Player {
 
     public void disconnect(){
         this.connected = false;
+    }
+
+    public int getDirection() {
+        return direction;
+    }
+
+    public void setDirection(int direction) {
+        this.direction = direction;
+    }
+
+    public boolean isMoving() {
+        return moving;
+    }
+
+    public void setMoving(boolean moving) {
+        this.moving = moving;
     }
 }

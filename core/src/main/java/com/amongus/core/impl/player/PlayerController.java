@@ -25,6 +25,7 @@ public class PlayerController {
 
     /**
      * Procesa la entrada del teclado y solicita el movimiento al engine.
+     *
      * @return true si el jugador intentó moverse.
      */
     public boolean handleInput() {
@@ -32,16 +33,26 @@ public class PlayerController {
         float dx = 0;
         float dy = 0;
 
-        // 1. Detectar dirección
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) { dx -= speed; direccion = -1; }
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) { dx += speed; direccion = 1; }
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) { dy += speed; }
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) { dy -= speed; }
+        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+            dx -= speed;
+            direccion = -1;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+            dx += speed;
+            direccion = 1;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+            dy += speed;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+            dy -= speed;
+        }
 
-        //Tecla para matar
+        boolean moving = dx != 0 || dy != 0;
 
-        if (dx != 0 || dy != 0) {
-            // 2. Obtener la posición actual desde el snapshot para calcular la nueva
+        engine.setPlayerMoving(localPlayerId, moving, direccion);
+
+        if (moving) {
             GameSnapshot snapshot = engine.getSnapshot();
             PlayerView me = snapshot.getPlayers().stream()
                 .filter(p -> p.getId().equals(localPlayerId))
@@ -49,14 +60,15 @@ public class PlayerController {
                 .orElse(null);
 
             if (me != null) {
-                // 3. Pedir al motor que nos mueva (el motor validará si se puede)
                 Position currentPos = me.getPosition();
-                Position nextPos = new Position((int) (currentPos.x() + dx), (int) (currentPos.y() + dy));
-
+                Position nextPos = new Position(
+                    (int) (currentPos.x() + dx),
+                    (int) (currentPos.y() + dy)
+                );
                 engine.movePlayer(localPlayerId, nextPos);
-                return true;
             }
         }
-        return false;
+
+        return moving;
     }
 }
