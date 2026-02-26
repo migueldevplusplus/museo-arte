@@ -1,6 +1,7 @@
 package com.amongus.core;
 
 import com.amongus.core.api.player.PlayerId;
+import com.amongus.core.api.player.Role;
 import com.amongus.core.model.Position;
 import com.badlogic.gdx.Game;
 import com.amongus.core.impl.engine.GameEngine;
@@ -28,10 +29,15 @@ public class AmongUsGame extends Game {
 
         // 1. Spawneamos a los jugadores primero (Estado: LOBBY)
         PlayerId myPlayerId = engine.spawnPlayer("Local Player"); // Este será el tuyo (myPlayerId)
+        PlayerId testPlayer = engine.spawnPlayer("test Player"); // Este será el tuyo (myPlayerId)
+
+        engine.assignRole(testPlayer, Role.CREWMATE);
+        engine.assignRole(myPlayerId, Role.IMPOSTOR);
 
         engine.startGame();
 
         engine.movePlayer(myPlayerId, new Position(500, 500));
+        engine.movePlayer(testPlayer, new Position(350, 350));
 
         // 3. Finalmente ponemos la pantalla
         setScreen(new FirstScreen(engine));

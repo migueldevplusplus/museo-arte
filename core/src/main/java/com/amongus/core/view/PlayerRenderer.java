@@ -7,8 +7,13 @@ import com.badlogic.gdx.utils.Disposable;
 public final class PlayerRenderer implements Disposable {
 
     private Texture[] sprites;
+    private Texture deadTexture;
+
     private float animationTimer; // Para controlar la velocidad de la animación
     private int frame;
+
+
+
 
     public PlayerRenderer() {
         this.sprites = new Texture[13];
@@ -25,9 +30,24 @@ public final class PlayerRenderer implements Disposable {
             String num = String.format("%04d", i);
             sprites[i] = new Texture("sprites/Walk" + num + ".png");
         }
+
+        deadTexture = new Texture("sprites/DeadAmong.png");
     }
 
-    public void draw(SpriteBatch batch, float x, float y, int dir, boolean moving) {
+
+
+    public void draw(SpriteBatch batch, float x, float y, int dir, boolean moving, boolean isAlive) {
+
+        //Si el jugador está muerto dibujamos el cadaver.
+
+        if(!isAlive){
+            System.out.println("RENDERER: Dibujando cadáver en X:" + x + " Y:" + y);
+            batch.draw(deadTexture, x, y, 50,50);
+            return;
+        }
+
+
+
         Texture currentFrame;
 
         if (moving) {
@@ -62,5 +82,6 @@ public final class PlayerRenderer implements Disposable {
         for (Texture tex : sprites) {
             if (tex != null) tex.dispose();
         }
+        if(deadTexture != null) deadTexture.dispose();
     }
 }

@@ -38,6 +38,8 @@ public class PlayerController {
         if (Gdx.input.isKeyPressed(Input.Keys.W)) { dy += speed; }
         if (Gdx.input.isKeyPressed(Input.Keys.S)) { dy -= speed; }
 
+        //Tecla para matar
+
         if (dx != 0 || dy != 0) {
             // 2. Obtener la posición actual desde el snapshot para calcular la nueva
             GameSnapshot snapshot = engine.getSnapshot();

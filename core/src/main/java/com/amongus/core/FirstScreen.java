@@ -16,6 +16,8 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.actions.VisibleAction;
 import com.badlogic.gdx.utils.ScreenUtils;
 
 /** First screen of the application. Displayed after the application is created. */
@@ -31,6 +33,15 @@ public class FirstScreen implements Screen {
     private Texture playerTexture; //reemplaza showPlayer por ahora.
     private PlayerId myPlayerId;
     private PlayerController controller;
+
+    private float bloodOverlay = 0;
+    private Texture pixelRojo;
+
+     private float shakeTimer = 0;
+     private float killCooldown = 0;
+
+
+
     public FirstScreen(GameEngine engine){
         this.engine = engine;
     }
@@ -50,43 +61,107 @@ public class FirstScreen implements Screen {
 
         //EL ENGINE CREA AL JUGADOR, NO LA PANTALLA
         controller = new PlayerController(engine, myPlayerId);
+
+        //Creacion de pixel rojo para muerte -- EN TEST
+        pixelRojo = new Texture("sprites/PixelRojo.png");
     }
 
     //funcion que se ejecuta una y otra vez permitiendo ir actualizando la pantalla
     @Override
     public void render(float delta) {
-        // 1. Obtener la "Realidad" del juego (el Snapshot)
         GameSnapshot snapshot = engine.getSnapshot();
 
-        // 2. PROCESAR INPUT (Lógica de control antes de dibujar)
-        // Solo permitimos movernos si estamos en el estado de juego
-        // 2. Procesar Input y Movimiento (Solo si estamos en juego)
+        // LOG NUEVO - Estado actual de todos los jugadores
+        long alive = snapshot.getPlayers().stream().filter(PlayerView::isAlive).count();
+        long dead = snapshot.getPlayers().size() - alive;
+        System.out.println("[RENDER] Frame - Vivos: " + alive + " | Muertos: " + dead);
+
         boolean isMoving = false;
-        if (snapshot.getState() == GameState.IN_GAME) {
-            isMoving = controller.handleInput(); // Actualiza la posición en el Engine
-            System.out.println("Cámara en: " + camera.position.x + ", " + camera.position.y);
 
-            // Tecla R para reportar
-            if(Gdx.input.isKeyJustPressed(Input.Keys.R)) {
-                engine.reportBody(myPlayerId, null);
+        if (snapshot.getState() == GameState.IN_GAME) {
+            // 1. Lógica de entrada y timers
+            isMoving = controller.handleInput();
+            if (killCooldown > 0) killCooldown -= delta;
+
+            PlayerView me = snapshot.getPlayers().stream()
+                .filter(p -> p.getId().equals(myPlayerId))
+                .findFirst().orElse(null);
+
+            // 2. Lógica de Kill simple
+            // C. Lógica de Disparo de Kill (tecla Q) - DISEÑO MEJORADO
+            if (Gdx.input.isKeyJustPressed(Input.Keys.Q) && killCooldown <= 0) {
+
+                // 1. Buscamos a la víctima potencial antes de hacer nada
+                PlayerView closeVictim = null;
+                float rangoAtaque = 150f; // Ajusta este número (80-120) según prefieras
+
+                for (PlayerView pv : snapshot.getPlayers()) {
+                    // No me mato a mí mismo y la víctima debe estar viva
+                    if (!pv.getId().equals(myPlayerId) && pv.isAlive()) {
+                        float dist = com.badlogic.gdx.math.Vector2.dst(
+                            me.getPosition().x(), me.getPosition().y(),
+                            pv.getPosition().x(), pv.getPosition().y()
+                        );
+
+                        if (dist < rangoAtaque) {
+                            closeVictim = pv;
+                            break; // Encontramos uno, no hace falta buscar más
+                        }
+                    }
+                }
+
+                // 2. SOLO si encontramos a alguien cerca, activamos todo
+                if (closeVictim != null) {
+                    System.out.println("[CLIENTE] Victima detectada a distancia: " +
+                        Vector2.dst(me.getPosition().x(), me.getPosition().y(),
+                            closeVictim.getPosition().x(), closeVictim.getPosition().y()));
+
+                    engine.requestKill(myPlayerId, closeVictim.getId()); // Enviamos la orden al motor
+
+                    // RECIÉN AQUÍ disparamos lo visual
+                    bloodOverlay = 0.6f;
+                    shakeTimer = 0.2f; // Si quieres reactivar el shake
+                    killCooldown = 15.0f;
+
+                    System.out.println("SISTEMA: Kill exitoso sobre " + closeVictim.getId());
+                } else {
+                    // Opcional: Sonido de error o mensaje de "Demasiado lejos"
+                    System.out.println("SISTEMA: Intento de kill fallido - Nadie en rango.");
+                }
             }
-        }
 
-        // 3. LIMPIAR PANTALLA
-        ScreenUtils.clear(0, 0, 0, 1);
+            // 3. Limpiar pantalla
+            ScreenUtils.clear(0, 0, 0, 1);
 
-        // 4. DIBUJAR SEGÚN EL ESTADO
-        // Separamos el dibujo en métodos diferentes para no tener un código gigante aquí
-        // 4. Dibujar según el estado
-        if (snapshot.getState() == GameState.IN_GAME) {
+            // 4. Dibujar el juego (Esto llama a tu renderGameplay)
+            // IMPORTANTE: Nos aseguramos de que el estado del batch esté limpio
             renderGameplay(snapshot, isMoving);
+
+            // 5. Dibujar el Efecto de Sangre (SIN tocar la cámara del juego)
+            if (bloodOverlay > 0) {
+                // Guardamos la matriz actual para no romper el siguiente frame
+                com.badlogic.gdx.math.Matrix4 matrixOriginal = batch.getProjectionMatrix().cpy();
+
+                // Ponemos matriz de pantalla fija
+                batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                batch.begin();
+                batch.setColor(1, 0, 0, bloodOverlay);
+                batch.draw(pixelRojo, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+                batch.setColor(1, 1, 1, 1); // Reset de color vital
+                batch.end();
+
+                // Restauramos la matriz original para que el renderGameplay del siguiente frame funcione
+                batch.setProjectionMatrix(matrixOriginal);
+
+                bloodOverlay -= delta;
+            }
         } else if (snapshot.getState() == GameState.MEETING) {
             renderVoting(snapshot);
         }
     }
 
     private void renderGameplay(GameSnapshot snapshot, boolean isMoving) {
-        // 1. Buscar al jugador local
+        // 1. Centrar Cámara
         PlayerView me = snapshot.getPlayers().stream()
             .filter(p -> p.getId().equals(myPlayerId))
             .findFirst().orElse(null);
@@ -96,33 +171,42 @@ public class FirstScreen implements Screen {
             camera.update();
         }
 
-        // 2. VINCULAR CÁMARA AL BATCH
         batch.setProjectionMatrix(camera.combined);
-
         batch.begin();
 
-        // 3. PRIMERO EL MAPA (El fondo)
+        // 2. DIBUJAR MAPA (Fondo)
         batch.draw(mapa, 0, 0, 5000, 4600);
 
-        // 4. LUEGO LOS JUGADORES (Encima del mapa)
+        // 3. CAPA DE MUERTOS
+
+        System.out.println("[RENDER] Dibujando " +
+            snapshot.getPlayers().stream().filter(p -> !p.isAlive()).count() + " cadáveres");
+
         for (PlayerView pv : snapshot.getPlayers()) {
+            if (!pv.isAlive()) {
 
-            boolean isMe = pv.getId().equals(myPlayerId);
-            // Obtenemos la dirección del controlador para el flip
-            int dir = pv.getId().equals(myPlayerId) ? controller.getDireccion() : 1;
+                System.out.println("[RENDER] Dibujando cadáver de " + pv.getId() +
+                    " en posición " + pv.getPosition());
 
-            boolean currentlyMoving = isMe && isMoving;
+                playerRenderer.draw(batch, pv.getPosition().x(), pv.getPosition().y(), 1, false, false);
+            }
+        }
 
-            // Usamos el renderer
-            playerRenderer.draw(batch, pv.getPosition().x(), pv.getPosition().y(), dir, currentlyMoving);
+        // 4. CAPA DE VIVOS (Encima de los muertos)
+        for (PlayerView pv : snapshot.getPlayers()) {
+            if (pv.isAlive()) {
+                boolean isMe = pv.getId().equals(myPlayerId);
+                int dir = isMe ? controller.getDireccion() : 1;
+                boolean currentlyMoving = isMe && isMoving;
 
-            // TEST DE SEGURIDAD: Si no ves la skin, esto dibujará un cuadro rojo donde DEBERÍA estar
-            // Si ves el cuadro rojo pero no la skin, el error está DENTRO de PlayerRenderer.draw()
-            // batch.draw(texturaRojaTemporal, pv.getPosition().x(), pv.getPosition().y(), 50, 50);
+                playerRenderer.draw(batch, pv.getPosition().x(), pv.getPosition().y(), dir, currentlyMoving, true);
+            }
         }
 
         batch.end();
     }
+
+
 
     public void renderVoting(GameSnapshot snapshot){
         // Por ahora, solo un mensaje simple para confirmar que funciona

@@ -6,6 +6,7 @@ import com.amongus.core.api.events.EventBus;
 import com.amongus.core.api.map.GameMap;
 import com.amongus.core.api.player.Player;
 import com.amongus.core.api.player.PlayerId;
+import com.amongus.core.api.player.Role;
 import com.amongus.core.api.session.GameSession;
 import com.amongus.core.api.state.GameState;
 import com.amongus.core.impl.event.EventBusImpl;
@@ -87,6 +88,50 @@ public class GameEngine {
             this.localPlayerId = newId;
         }
         return newId;
+    }
+
+    public void assignRole(PlayerId playerId, Role role){
+        Player player = session.getPlayers().stream()
+            .filter(p -> p.getId().equals(playerId))
+            .findFirst().orElse(null);
+
+        if(player instanceof  PlayerImpl){
+            ((PlayerImpl) player).assignRole(role);
+        }
+    }
+
+    //Intentar matar LÓGICA
+
+    // NUEVO
+    public void requestKill(PlayerId killerId, PlayerId victimId) {
+        Player killer = session.getPlayers().stream()
+            .filter(p -> p.getId().equals(killerId))
+            .findFirst().orElse(null);
+
+        Player victim = session.getPlayers().stream()
+            .filter(p -> p.getId().equals(victimId))
+            .findFirst().orElse(null);
+
+        if (killer == null || victim == null || !killer.alive() || !victim.alive()) {
+            System.out.println("[ENGINE] requestKill RECHAZADO: killer o victim inválido");
+            return;
+        }
+
+        // Validación con el MISMO rango que usas en cliente
+        double distance = Math.hypot(
+
+            killer.getPosition().x() - victim.getPosition().x(),
+            killer.getPosition().y() - victim.getPosition().y()
+        );
+        System.out.println("[ENGINE] Distancia real = " + String.format("%.1f", distance));
+        if (distance <= 150.0) {
+            System.out.println("[ENGINE] → Llamando attemptKill...");
+            session.attemptKill(killerId, victimId);
+            System.out.println("[ENGINE] → attemptKill ejecutado correctamente");
+        }
+        else{
+            System.out.println("[ENGINE] → Distancia demasiado grande, kill rechazado");
+        }
     }
 
 
