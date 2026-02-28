@@ -33,6 +33,7 @@ public class PlayerController {
         float dx = 0;
         float dy = 0;
 
+
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             dx -= speed;
             direccion = -1;
@@ -58,6 +59,7 @@ public class PlayerController {
                 .filter(p -> p.getId().equals(localPlayerId))
                 .findFirst()
                 .orElse(null);
+
 
             if (me != null) {
                 Position currentPos = me.getPosition();

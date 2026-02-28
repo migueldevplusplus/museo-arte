@@ -30,14 +30,18 @@ public class AmongUsGame extends Game {
         // 1. Spawneamos a los jugadores primero (Estado: LOBBY)
         PlayerId myPlayerId = engine.spawnPlayer("Local Player"); // Este será el tuyo (myPlayerId)
         PlayerId testPlayer = engine.spawnPlayer("test Player"); // Este será el tuyo (myPlayerId)
+        PlayerId jugador3 = engine.spawnPlayer("Jugador 3");
 
         engine.assignRole(testPlayer, Role.CREWMATE);
+        engine.assignRole(jugador3, Role.CREWMATE);
         engine.assignRole(myPlayerId, Role.IMPOSTOR);
 
         engine.startGame();
 
         engine.movePlayer(myPlayerId, new Position(500, 500));
         engine.movePlayer(testPlayer, new Position(350, 350));
+        engine.movePlayer(jugador3, new Position(800, 800));
+
 
         // 3. Finalmente ponemos la pantalla
         setScreen(new FirstScreen(engine));
