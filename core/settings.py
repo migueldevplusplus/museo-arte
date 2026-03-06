@@ -77,11 +77,14 @@ WSGI_APPLICATION = 'core.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'museum_db',
-        'USER': 'root',
-        'PASSWORD': 'm!guelsql111',
-        'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'NAME': 'defaultdb',
+        'USER': 'avnadmin',
+        'PASSWORD': 'AVNS_A74Wlpf8KvAmRiSTpqy',
+        'HOST': '165.232.179.238',  # <--- Usamos la IP que te dio el nslookup
+        'PORT': '14529',
+        'OPTIONS': {
+            'ssl': {'ca': None},     # <--- OBLIGATORIO para conectar con Aiven
+        },
     }
 }
 

@@ -1,0 +1,15 @@
+# Entorno Virtual
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Base de Datos (opcional, pero recomendado no subirla)
+db.sqlite3
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
