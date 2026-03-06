@@ -70,7 +70,7 @@ Edita el archivo `.env` con tus credenciales locales:
 ```
 DB_NAME=museum_db
 DB_USER=root
-DB_PASSWORD=TU_CONTRASEÑA
+DB_PASSWORD=m!guelsql111
 DB_HOST=127.0.0.1
 DB_PORT=3306
 ```
