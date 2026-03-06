@@ -11,9 +11,7 @@ Aplicación web desarrollada con **Django** y **MySQL** para la gestión y venta
 
 ---
 
-## 🛠️ Guía de Instalación Paso a Paso
-
-**Clonen este repositorio del proyecto usando GitHub Desktop**
+## 🛠️ Guía de Instalación Paso a Paso **Clonen este repositorio del proyecto usando GitHub Desktop**
 
 Sigue estas instrucciones al pie de la letra para configurar el proyecto en tu PC sin errores de entorno o de base de datos. 
 
