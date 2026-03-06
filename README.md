@@ -45,11 +45,18 @@ Abre una terminal en VS Code dentro de la carpeta del proyecto.
 
 ### 3. Instalar Dependencias
 
-Con el entorno `(venv)` activo, instala las librerías necesarias para el proyecto:
+Con el entorno `(venv)` activo, instala las librerías necesarias para el proyecto (ejem):
 
 ```powershell
 pip install django mysqlclient pillow
 ```
+Sin embargo los requerimientos estan en requirements.txt
+
+Corran 
+```powershell
+pip install -r requirements.txt
+```
+Y debería instalar todo lo necesario
 
 ### 4. Configurar la Base de Datos (Nube)
 
