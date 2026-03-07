@@ -2,7 +2,7 @@
 
 ## A. Problem Statement
 The system manages the exhibition and sale of artworks for the Museum of Contemporary Art. It handles:
-- **Artworks**: Categorized by genre (Painting, Sculpture, etc.) with specific attributes.
+- **Artworks**: Categorized by genre with specific attributes modeled via multi-table inheritance (Painting, Sculpture, Photography, Ceramic, Goldsmithing).
 - **Artists**: Information including biography and genres.
 - **Users**:
   - **Buyers**: Register, pay membership ($10), receive security code, reserve artworks.
@@ -42,7 +42,12 @@ The system manages the exhibition and sale of artworks for the Museum of Contemp
 - **BuyerProfile**: `user_id` (FK), `credit_card`, `security_code`, `address`.
 - **Genre**: `name`.
 - **Artist**: `name`, `bio`, `nationality`, `birth_date`, `photo`.
-- **Artwork**: `title`, `artist_id` (FK), `genre_id` (FK), `price`, `date`, `photo`, `status` (Available/Reserved/Sold), `attributes` (JSON).
+- **Artwork** (base): `title`, `artist_id` (FK), `genre_id` (FK), `price`, `date`, `photo`, `status`.
+- **Painting** (inherits Artwork): `technique`, `support`, `height`, `width`.
+- **Sculpture** (inherits Artwork): `material`, `weight`, `height`, `width`, `depth`.
+- **Photography** (inherits Artwork): `photo_type`, `camera`, `technique`, `height`, `width`.
+- **Ceramic** (inherits Artwork): `material`, `technique`, `glaze_type`, `height`, `width`.
+- **Goldsmithing** (inherits Artwork): `material`, `object_type`, `weight`, `gemstones`.
 - **Sale**: `artwork_id` (FK), `buyer_id` (FK), `date`, `subtotal`, `iva`, `commission`, `total`.
 - **Membership**: `buyer_id` (FK), `date`, `amount`.
 
@@ -50,6 +55,11 @@ The system manages the exhibition and sale of artworks for the Museum of Contemp
 - Artist M:N Genre
 - Artist 1:N Artwork
 - Genre 1:N Artwork
+- Painting 1:1 Artwork (multi-table inheritance)
+- Sculpture 1:1 Artwork (multi-table inheritance)
+- Photography 1:1 Artwork (multi-table inheritance)
+- Ceramic 1:1 Artwork (multi-table inheritance)
+- Goldsmithing 1:1 Artwork (multi-table inheritance)
 - User 1:1 BuyerProfile
 - BuyerProfile 1:N Membership
 - Artwork 1:1 Sale
@@ -66,7 +76,7 @@ The system manages the exhibition and sale of artworks for the Museum of Contemp
 | is_buyer | Boolean | Flag for buyers |
 | is_employee| Boolean | Flag for staff |
 
-### Table: museum_artwork
+### Table: museum_artwork (base)
 | Field | Type | Description |
 |-------|------|-------------|
 | id | Integer | PK |
@@ -74,8 +84,19 @@ The system manages the exhibition and sale of artworks for the Museum of Contemp
 | artist_id | Integer | FK to Artist |
 | genre_id | Integer | FK to Genre |
 | price | Decimal | Sale price |
+| creation_date | Date | Date created |
+| photo | Varchar | Image path |
 | status | Varchar | Available, Reserved, Sold |
-| attributes | JSON | Flexible attributes (dimensions, etc.) |
+
+### Specialized Tables (multi-table inheritance)
+
+| Table | Key Fields |
+|-------|------------|
+| `museum_painting` | `artwork_ptr_id` (PK/FK), `technique`, `support`, `height`, `width` |
+| `museum_sculpture` | `artwork_ptr_id` (PK/FK), `material`, `weight`, `height`, `width`, `depth` |
+| `museum_photography` | `artwork_ptr_id` (PK/FK), `photo_type`, `camera`, `technique`, `height`, `width` |
+| `museum_ceramic` | `artwork_ptr_id` (PK/FK), `material`, `technique`, `glaze_type`, `height`, `width` |
+| `museum_goldsmithing` | `artwork_ptr_id` (PK/FK), `material`, `object_type`, `weight`, `gemstones` |
 
 *( ... and so on for other tables ... )*
 

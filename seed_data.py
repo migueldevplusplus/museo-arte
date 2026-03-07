@@ -1,58 +1,75 @@
 import os
 import django
-from django.core.files.base import ContentFile
 import datetime
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "core.settings")
 django.setup()
 
-from museum.models import Artist, Genre, Artwork
+from museum.models import Artist, Genre, Painting, Sculpture
+
 
 def create_data():
-    # Genres
-    painting, _ = Genre.objects.get_or_create(name="Pintura")
-    sculpture, _ = Genre.objects.get_or_create(name="Escultura")
-    photography, _ = Genre.objects.get_or_create(name="Fotografía")
+    # Genres (all five)
+    painting_genre, _ = Genre.objects.get_or_create(name="Pintura")
+    sculpture_genre, _ = Genre.objects.get_or_create(name="Escultura")
+    Genre.objects.get_or_create(name="Fotografía")
+    Genre.objects.get_or_create(name="Cerámica")
+    Genre.objects.get_or_create(name="Orfebrería")
 
     # Artists
     picasso, _ = Artist.objects.get_or_create(
         name="Pablo Picasso",
-        biography="Pintor español, creador del cubismo.",
-        nationality="Española",
-        birth_date=datetime.date(1881, 10, 25)
+        defaults={
+            "biography": "Pintor español, creador del cubismo.",
+            "nationality": "Española",
+            "birth_date": datetime.date(1881, 10, 25),
+        },
     )
-    picasso.genres.add(painting, sculpture)
+    picasso.genres.add(painting_genre, sculpture_genre)
 
     dali, _ = Artist.objects.get_or_create(
         name="Salvador Dalí",
-        biography="Pintor surrealista español.",
-        nationality="Española",
-        birth_date=datetime.date(1904, 5, 11)
+        defaults={
+            "biography": "Pintor surrealista español.",
+            "nationality": "Española",
+            "birth_date": datetime.date(1904, 5, 11),
+        },
     )
-    dali.genres.add(painting)
+    dali.genres.add(painting_genre)
 
-    # Artworks
-    Artwork.objects.get_or_create(
+    # Artworks — using specialized models
+    Painting.objects.get_or_create(
         title="Guernica",
-        artist=picasso,
-        genre=painting,
-        price=15000000.00,
-        creation_date=datetime.date(1937, 1, 1),
-        status='AVAILABLE',
-        attributes={"dimensions": "349 cm × 776 cm", "technique": "Óleo sobre lienzo"}
+        defaults={
+            "artist": picasso,
+            "genre": painting_genre,
+            "price": 15000000.00,
+            "creation_date": datetime.date(1937, 1, 1),
+            "status": "AVAILABLE",
+            "technique": "oil",
+            "support": "canvas",
+            "height": 349,
+            "width": 776,
+        },
     )
 
-    Artwork.objects.get_or_create(
+    Painting.objects.get_or_create(
         title="La persistencia de la memoria",
-        artist=dali,
-        genre=painting,
-        price=2000000.00,
-        creation_date=datetime.date(1931, 1, 1),
-        status='AVAILABLE',
-        attributes={"dimensions": "24 cm × 33 cm", "technique": "Óleo sobre lienzo"}
+        defaults={
+            "artist": dali,
+            "genre": painting_genre,
+            "price": 2000000.00,
+            "creation_date": datetime.date(1931, 1, 1),
+            "status": "AVAILABLE",
+            "technique": "oil",
+            "support": "canvas",
+            "height": 24,
+            "width": 33,
+        },
     )
-    
+
     print("Data seeded successfully.")
+
 
 if __name__ == "__main__":
     create_data()

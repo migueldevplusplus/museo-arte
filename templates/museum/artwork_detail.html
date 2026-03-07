@@ -23,9 +23,9 @@
                 Creation Date
                 <span>{{ artwork.creation_date }}</span>
             </li>
-            {% for key, value in artwork.attributes.items %}
-            <li class="list-group-item d-flex justify-content-between align-items-center text-capitalize">
-                {{ key }}
+            {% for label, value in detail_fields %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ label }}
                 <span>{{ value }}</span>
             </li>
             {% endfor %}

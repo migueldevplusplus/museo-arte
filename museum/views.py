@@ -60,7 +60,13 @@ def catalog(request):
 
 def artwork_detail(request, pk):
     artwork = get_object_or_404(Artwork, pk=pk)
-    return render(request, 'museum/artwork_detail.html', {'artwork': artwork})
+    # Resolve to the specialized child instance (Painting, Sculpture, etc.)
+    specific = artwork.get_specific_instance()
+    detail_fields = specific.get_detail_fields()
+    return render(request, 'museum/artwork_detail.html', {
+        'artwork': artwork,
+        'detail_fields': detail_fields,
+    })
 
 def artist_detail(request, pk):
     artist = get_object_or_404(Artist, pk=pk)

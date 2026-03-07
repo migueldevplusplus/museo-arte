@@ -8,7 +8,7 @@ Este documento explica cómo se implementó el modelado de la base de datos usan
 
 El proyecto usa **Django ORM** para definir los modelos. Django traduce automáticamente las clases Python en tablas MySQL mediante migraciones. La base de datos se llama `museum_db`.
 
-
+El diseño utiliza **herencia multi-tabla (multi-table inheritance)** de Django para modelar la especialización de obras de arte por género. Cada tipo de obra (Pintura, Escultura, Fotografía, Cerámica, Orfebrería) hereda de un modelo base `Artwork`, creando tablas separadas con sus atributos específicos.
 
 ## Entidades implementadas formateadas manualmente versión clases BD:
 
@@ -40,6 +40,8 @@ El proyecto usa **Django ORM** para definir los modelos. Django traduce automát
 * id_genero (PK)
 * name
 
+Géneros registrados: Pintura, Escultura, Fotografía, Cerámica, Orfebrería.
+
 ---
 
 ## ARTISTA
@@ -53,7 +55,7 @@ El proyecto usa **Django ORM** para definir los modelos. Django traduce automát
 
 ---
 
-## OBRA
+## OBRA (modelo base)
 
 * id_obra (PK)
 * title
@@ -63,7 +65,59 @@ El proyecto usa **Django ORM** para definir los modelos. Django traduce automát
 * creation_date
 * photo
 * status
-* attributes
+
+---
+
+## PINTURA (hereda de Obra)
+
+* artwork_ptr_id (PK, FK → Obra)
+* technique (óleo, acrílico, acuarela)
+* support (lienzo, madera, papel)
+* height
+* width
+
+---
+
+## ESCULTURA (hereda de Obra)
+
+* artwork_ptr_id (PK, FK → Obra)
+* material
+* weight
+* height
+* width
+* depth
+
+---
+
+## FOTOGRAFÍA (hereda de Obra)
+
+* artwork_ptr_id (PK, FK → Obra)
+* photo_type (digital, analógica)
+* camera
+* technique (blanco y negro, color)
+* height
+* width
+
+---
+
+## CERÁMICA (hereda de Obra)
+
+* artwork_ptr_id (PK, FK → Obra)
+* material
+* technique
+* glaze_type
+* height
+* width
+
+---
+
+## ORFEBRERÍA (hereda de Obra)
+
+* artwork_ptr_id (PK, FK → Obra)
+* material (oro, plata, bronce, cobre)
+* object_type (anillo, collar, pulsera)
+* weight
+* gemstones
 
 ---
 
@@ -97,6 +151,11 @@ BuyerProfile 1 —— N Membresia
 Artista N —— M Genero
 Artista 1 —— N Obra
 Genero 1 —— N Obra
+Pintura 1 —— 1 Obra (herencia multi-tabla)
+Escultura 1 —— 1 Obra (herencia multi-tabla)
+Fotografía 1 —— 1 Obra (herencia multi-tabla)
+Cerámica 1 —— 1 Obra (herencia multi-tabla)
+Orfebrería 1 —— 1 Obra (herencia multi-tabla)
 Obra 1 —— 1 Venta
 Usuario 1 —— N Venta (como comprador)
 Usuario 1 —— N Venta (como empleado que procesa)
@@ -114,6 +173,11 @@ erDiagram
     Artist }o--o{ Genre : "pertenece a"
     Artist ||--o{ Artwork : "crea"
     Genre ||--o{ Artwork : "clasifica"
+    Artwork ||--o| Painting : "especializa"
+    Artwork ||--o| Sculpture : "especializa"
+    Artwork ||--o| Photography : "especializa"
+    Artwork ||--o| Ceramic : "especializa"
+    Artwork ||--o| Goldsmithing : "especializa"
     Artwork ||--o| Sale : "se vende en"
 ```
 
@@ -200,7 +264,7 @@ artist.genres.all()
 genre.artists.all()
 ```
 
-### Tabla `Artwork`
+### Tabla `Artwork` (modelo base)
 
 | Campo | Tipo Django | Tipo MySQL | Descripción |
 |-------|------------|------------|-------------|
@@ -212,7 +276,6 @@ genre.artists.all()
 | `creation_date` | `DateField` | `DATE` | Fecha de creación |
 | `photo` | `ImageField(upload_to='artworks/')` | `VARCHAR(100)` | Imagen de la obra |
 | `status` | `CharField(choices=...)` | `VARCHAR(20)` | Estado actual |
-| `attributes` | `JSONField(default=dict)` | `JSON` | Atributos flexibles |
 
 **Campo `status` — Máquina de estados:**
 ```
@@ -222,19 +285,87 @@ AVAILABLE  →  RESERVED  →  SOLD
 - Un comprador puede reservar una obra → cambia a `RESERVED`
 - Un empleado finaliza la venta desde el admin → cambia a `SOLD`
 
-**Campo `attributes` (JSONField):**
-Permite guardar atributos específicos por tipo de obra sin modificar la estructura de la tabla:
-```python
-# Escultura:
-{"material": "bronce", "peso": "15kg", "dimensiones": "50x30x20cm"}
-
-# Pintura:
-{"técnica": "óleo sobre lienzo", "dimensiones": "100x80cm"}
-```
-
 **Relaciones FK:**
 - `artist`: `on_delete=CASCADE` → Si se elimina el artista, se eliminan sus obras
 - `genre`: `on_delete=SET_NULL` → Si se elimina el género, la obra queda sin género (no se borra)
+
+### Tablas Especializadas (Herencia Multi-Tabla)
+
+Django implementa la especialización mediante **multi-table inheritance**: cada modelo hijo crea su propia tabla con un `OneToOneField` automático (`artwork_ptr_id`) hacia la tabla padre `museum_artwork`.
+
+#### Tabla `Painting` (Pintura)
+
+| Campo | Tipo Django | Tipo MySQL | Descripción |
+|-------|------------|------------|-------------|
+| `artwork_ptr` | Auto (PK, FK → Artwork) | `INT PK FK` | Referencia al Artwork base |
+| `technique` | `CharField(choices=...)` | `VARCHAR(50)` | Técnica: óleo, acrílico, acuarela |
+| `support` | `CharField(choices=...)` | `VARCHAR(50)` | Soporte: lienzo, madera, papel |
+| `height` | `DecimalField(8, 2)` | `DECIMAL(8,2)` | Altura en cm |
+| `width` | `DecimalField(8, 2)` | `DECIMAL(8,2)` | Ancho en cm |
+
+#### Tabla `Sculpture` (Escultura)
+
+| Campo | Tipo Django | Tipo MySQL | Descripción |
+|-------|------------|------------|-------------|
+| `artwork_ptr` | Auto (PK, FK → Artwork) | `INT PK FK` | Referencia al Artwork base |
+| `material` | `CharField(max_length=100)` | `VARCHAR(100)` | Material de la escultura |
+| `weight` | `DecimalField(8, 2)` | `DECIMAL(8,2)` | Peso en kg |
+| `height` | `DecimalField(8, 2)` | `DECIMAL(8,2)` | Altura en cm |
+| `width` | `DecimalField(8, 2)` | `DECIMAL(8,2)` | Ancho en cm |
+| `depth` | `DecimalField(8, 2)` | `DECIMAL(8,2)` | Profundidad en cm |
+
+#### Tabla `Photography` (Fotografía)
+
+| Campo | Tipo Django | Tipo MySQL | Descripción |
+|-------|------------|------------|-------------|
+| `artwork_ptr` | Auto (PK, FK → Artwork) | `INT PK FK` | Referencia al Artwork base |
+| `photo_type` | `CharField(choices=...)` | `VARCHAR(50)` | Tipo: digital, analógica |
+| `camera` | `CharField(max_length=200)` | `VARCHAR(200)` | Cámara utilizada |
+| `technique` | `CharField(choices=...)` | `VARCHAR(50)` | Técnica: B&N, color |
+| `height` | `DecimalField(8, 2)` | `DECIMAL(8,2)` | Altura en cm |
+| `width` | `DecimalField(8, 2)` | `DECIMAL(8,2)` | Ancho en cm |
+
+#### Tabla `Ceramic` (Cerámica)
+
+| Campo | Tipo Django | Tipo MySQL | Descripción |
+|-------|------------|------------|-------------|
+| `artwork_ptr` | Auto (PK, FK → Artwork) | `INT PK FK` | Referencia al Artwork base |
+| `material` | `CharField(max_length=100)` | `VARCHAR(100)` | Material |
+| `technique` | `CharField(max_length=100)` | `VARCHAR(100)` | Técnica cerámica |
+| `glaze_type` | `CharField(max_length=100)` | `VARCHAR(100)` | Tipo de esmalte |
+| `height` | `DecimalField(8, 2)` | `DECIMAL(8,2)` | Altura en cm |
+| `width` | `DecimalField(8, 2)` | `DECIMAL(8,2)` | Ancho en cm |
+
+#### Tabla `Goldsmithing` (Orfebrería)
+
+| Campo | Tipo Django | Tipo MySQL | Descripción |
+|-------|------------|------------|-------------|
+| `artwork_ptr` | Auto (PK, FK → Artwork) | `INT PK FK` | Referencia al Artwork base |
+| `material` | `CharField(choices=...)` | `VARCHAR(50)` | Material: oro, plata, bronce, cobre |
+| `object_type` | `CharField(choices=...)` | `VARCHAR(50)` | Tipo: anillo, collar, pulsera |
+| `weight` | `DecimalField(8, 2)` | `DECIMAL(8,2)` | Peso en gramos |
+| `gemstones` | `CharField(max_length=200)` | `VARCHAR(200)` | Piedras preciosas (opcional) |
+
+**¿Cómo funciona la herencia multi-tabla?**
+```python
+# Crear una pintura (crea registro en museum_artwork Y museum_painting):
+painting = Painting.objects.create(
+    title="Guernica",
+    artist=picasso,
+    genre=pintura,
+    price=15000000,
+    creation_date="1937-01-01",
+    technique="oil",
+    support="canvas",
+    height=349,
+    width=776,
+)
+
+# Acceder desde Artwork base a la especialización:
+artwork = Artwork.objects.get(pk=1)
+specific = artwork.get_specific_instance()  # Retorna la instancia Painting
+fields = specific.get_detail_fields()       # Lista de (etiqueta, valor) en español
+```
 
 ### Tabla `Membership`
 
@@ -337,9 +468,13 @@ total = subtotal + iva
 | `museum_genre` | `Genre` | museum |
 | `museum_artist` | `Artist` | museum |
 | `museum_artist_genres` | *(tabla M:N automática)* | museum |
-| `museum_artwork` | `Artwork` | museum |
+| `museum_artwork` | `Artwork` (base) | museum |
+| `museum_painting` | `Painting` | museum |
+| `museum_sculpture` | `Sculpture` | museum |
+| `museum_photography` | `Photography` | museum |
+| `museum_ceramic` | `Ceramic` | museum |
+| `museum_goldsmithing` | `Goldsmithing` | museum |
 | `museum_membership` | `Membership` | museum |
 | `museum_sale` | `Sale` | museum |
 
 Django también genera tablas internas: `auth_group`, `auth_permission`, `django_session`, `django_content_type`, `django_migrations`, etc.
-

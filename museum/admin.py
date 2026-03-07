@@ -1,16 +1,22 @@
 from django.contrib import admin
 from django.utils import timezone
 from django.contrib import messages
-from .models import Genre, Artist, Artwork, Membership, Sale
+from .models import (
+    Genre, Artist, Artwork, Membership, Sale,
+    Painting, Sculpture, Photography, Ceramic, Goldsmithing,
+)
+
 
 @admin.register(Genre)
 class GenreAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
+
 @admin.register(Artist)
 class ArtistAdmin(admin.ModelAdmin):
     list_display = ('name', 'nationality', 'birth_date')
     filter_horizontal = ('genres',)
+
 
 @admin.register(Artwork)
 class ArtworkAdmin(admin.ModelAdmin):
@@ -23,50 +29,74 @@ class ArtworkAdmin(admin.ModelAdmin):
     def mark_as_sold(self, request, queryset):
         for artwork in queryset:
             if artwork.status == 'RESERVED':
-                # Find the buyer (logic assumption: for this simple project, we might need a way to know WHO reserved it. 
-                # In the view we didn't save the reservation to a user, just changed status. 
-                # To fix this properly, we should have created a Sale object with status PENDING.
-                # Let's fix the model/view logic slightly or assume the admin manually assigns the buyer in a Sale object.
-                
-                # BETTER APPROACH: Admin creates a Sale object manually for the Reserved artwork.
-                # So this action might just be valid if we had a "Reservation" model.
-                # Let's stick to the requirement: "Esta factura es hecha por cualquier administrador... una vez concretada la venta"
                 pass
-            
-            # If we just change status here, we miss the Invoice generation linked to a buyer.
-            # So, let's rely on the SaleAdmin to create the sale.
         pass
 
-# Re-thinking: The requirement says "Un trabajador... se comunicará... De concretarse la venta... Al emitirse la factura se considera venta concretada."
-# So the Admin goes to "Sales", adds a new Sale, selects the Artwork (which is Reserved), selects the Buyer.
-# Saving the Sale should update the Artwork status to SOLD and calculate totals.
+
+# ---- Specialized artwork admins ----
+
+@admin.register(Painting)
+class PaintingAdmin(admin.ModelAdmin):
+    list_display = ('title', 'artist', 'technique', 'support', 'price', 'status')
+    list_filter = ('technique', 'support', 'status')
+    search_fields = ('title', 'artist__name')
+
+
+@admin.register(Sculpture)
+class SculptureAdmin(admin.ModelAdmin):
+    list_display = ('title', 'artist', 'material', 'weight', 'price', 'status')
+    list_filter = ('material', 'status')
+    search_fields = ('title', 'artist__name')
+
+
+@admin.register(Photography)
+class PhotographyAdmin(admin.ModelAdmin):
+    list_display = ('title', 'artist', 'photo_type', 'technique', 'price', 'status')
+    list_filter = ('photo_type', 'technique', 'status')
+    search_fields = ('title', 'artist__name')
+
+
+@admin.register(Ceramic)
+class CeramicAdmin(admin.ModelAdmin):
+    list_display = ('title', 'artist', 'material', 'technique', 'price', 'status')
+    list_filter = ('material', 'status')
+    search_fields = ('title', 'artist__name')
+
+
+@admin.register(Goldsmithing)
+class GoldsmithingAdmin(admin.ModelAdmin):
+    list_display = ('title', 'artist', 'material', 'object_type', 'price', 'status')
+    list_filter = ('material', 'object_type', 'status')
+    search_fields = ('title', 'artist__name')
+
+
+# ---- Sale & Membership ----
 
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
     list_display = ('artwork', 'buyer', 'date', 'total', 'pdf_invoice')
     readonly_fields = ('date', 'subtotal', 'iva', 'total', 'commission')
     autocomplete_fields = ['artwork', 'buyer']
-    
+
     def save_model(self, request, obj, form, change):
-        if not change: # Creating new sale
+        if not change:
             artwork = obj.artwork
             if artwork.status != 'SOLD':
                 artwork.status = 'SOLD'
                 artwork.save()
-                
-                # Calculate amounts
+
                 obj.subtotal = artwork.price
-                obj.iva = obj.subtotal * 0.16 # 16% IVA
-                obj.commission = obj.subtotal * 0.10 # 10% Commission
+                obj.iva = obj.subtotal * 0.16
+                obj.commission = obj.subtotal * 0.10
                 obj.total = float(obj.subtotal) + float(obj.iva)
                 obj.processed_by = request.user
-        
+
         super().save_model(request, obj, form, change)
 
     def pdf_invoice(self, obj):
-        # Placeholder for PDF generation link
         return "Invoice #{}".format(obj.id)
     pdf_invoice.short_description = 'Invoice'
+
 
 @admin.register(Membership)
 class MembershipAdmin(admin.ModelAdmin):
