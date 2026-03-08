@@ -20,10 +20,41 @@ class ArtistAdmin(admin.ModelAdmin):
 
 @admin.register(Artwork)
 class ArtworkAdmin(admin.ModelAdmin):
-    list_display = ('title', 'artist', 'price', 'status', 'creation_date')
+    list_display = ('title', 'artist', 'price', 'status', 'creation_date', 'get_type_display')
     list_filter = ('status', 'genre', 'artist')
     search_fields = ('title', 'artist__name')
     actions = ['mark_as_sold']
+    
+    readonly_fields = ('detailed_info',)
+
+    def detailed_info(self, obj):
+        instance = obj.get_specific_instance()
+        if instance == obj:
+            return "No hay información adicional."
+        
+        details = instance.get_detail_fields()
+        if not details:
+            return "No hay detalles para mostrar."
+            
+        html = "<ul>"
+        for label, value in details:
+            html += f"<li><strong>{label}:</strong> {value}</li>"
+        html += "</ul>"
+        from django.utils.html import mark_safe
+        return mark_safe(html)
+    detailed_info.short_description = 'Detalles específicos'
+
+    def get_type_display(self, obj):
+        instance = obj.get_specific_instance()
+        return instance._meta.verbose_name.title() if instance != obj else "Obra General"
+    get_type_display.short_description = 'Tipo de Obra'
+
+    def has_add_permission(self, request):
+        """
+        Prevent creating base 'Artwork' entries directly.
+        Instead, users must create specific subclass models (Painting, Sculpture, etc.).
+        """
+        return False
 
     @admin.action(description='Mark selected artworks as SOLD and generate Invoice')
     def mark_as_sold(self, request, queryset):
