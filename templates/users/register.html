@@ -28,4 +28,18 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ccInput = document.getElementById('id_credit_card_number');
+        if (ccInput) {
+            ccInput.addEventListener('input', function (e) {
+                let target = e.target;
+                let value = target.value.replace(/\D/g, '').substring(0, 16);
+                let formattedValue = value.match(/.{1,4}/g)?.join('-') || value;
+                target.value = formattedValue;
+            });
+        }
+    });
+</script>
 {% endblock %}

@@ -169,14 +169,10 @@ class Goldsmithing(Artwork):
         ('bronze', 'Bronce'),
         ('copper', 'Cobre'),
     ]
-    OBJECT_TYPE_CHOICES = [
-        ('ring', 'Anillo'),
-        ('necklace', 'Collar'),
-        ('bracelet', 'Pulsera'),
-    ]
+
 
     material = models.CharField(max_length=50, choices=MATERIAL_CHOICES)
-    object_type = models.CharField(max_length=50, choices=OBJECT_TYPE_CHOICES, verbose_name='Tipo de objeto')
+    object_type = models.CharField(max_length=50, verbose_name='Tipo de objeto')
     weight = models.DecimalField(max_digits=8, decimal_places=2, help_text='Peso en gramos')
     gemstones = models.CharField(max_length=200, blank=True, verbose_name='Piedras preciosas')
 

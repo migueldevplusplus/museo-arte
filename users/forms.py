@@ -1,10 +1,27 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.core.validators import RegexValidator
 from .models import User, BuyerProfile
 
 class BuyerRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
-    credit_card_number = forms.CharField(max_length=19, required=True, help_text="XXXX-XXXX-XXXX-XXXX")
+    credit_card_number = forms.CharField(
+        max_length=19, 
+        required=True, 
+        help_text="XXXX-XXXX-XXXX-XXXX",
+        validators=[
+            RegexValidator(
+                regex=r'^\d{4}-\d{4}-\d{4}-\d{4}$',
+                message='El número de tarjeta debe tener el formato XXXX-XXXX-XXXX-XXXX',
+                code='invalid_credit_card'
+            )
+        ],
+        widget=forms.TextInput(attrs={
+            'pattern': r'\d{4}-\d{4}-\d{4}-\d{4}',
+            'placeholder': 'XXXX-XXXX-XXXX-XXXX',
+            'title': 'El número de tarjeta debe tener el formato XXXX-XXXX-XXXX-XXXX'
+        })
+    )
     shipping_address = forms.CharField(widget=forms.Textarea, required=True)
     
     security_answer_1 = forms.CharField(max_length=100, required=True, label="¿Cuál es tu color favorito?")
