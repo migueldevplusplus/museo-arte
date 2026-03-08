@@ -5,24 +5,32 @@
     <div class="col-md-6">
         <div class="card">
             <div class="card-header">
-                <h3>Reserve Artwork: {{ artwork.title }}</h3>
+                <h3>Reservar Pieza: {{ artwork.title }}</h3>
             </div>
             <div class="card-body">
-                <p>Please enter your security code to confirm the reservation.</p>
+                <p>Por favor ingresa tu código de seguridad para confirmar la reservación.</p>
                 <form method="post">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="security_code" class="form-label">Security Code</label>
+                        <label for="security_code" class="form-label">Código de seguridad</label>
                         <input type="text" name="security_code" class="form-control" id="security_code" required>
-                        <div class="form-text">This code was emailed to you upon registration.</div>
+                        <div class="form-text">Este código fue enviado a su correo luego del registro.</div>
                     </div>
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-success">Confirm Reservation</button>
-                        <a href="{% url 'artwork_detail' artwork.pk %}" class="btn btn-link mt-2">Cancel</a>
+                        <button type="submit" class="btn btn-success">Confirmar Reservación</button>
+                        <a href="{% url 'artwork_detail' artwork.pk %}" class="btn btn-link mt-2">Cancelar</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+<script>
+    // Prevenir dobles clics
+    document.getElementById('reserve-form').addEventListener('submit', function (e) {
+        var btn = document.getElementById('submit-btn');
+        btn.disabled = true;
+        btn.innerHTML = 'Procesando...';
+    });
+</script>
 {% endblock %}

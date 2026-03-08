@@ -228,3 +228,15 @@ class Sale(models.Model):
 
     def __str__(self):
         return f"Sale of {self.artwork.title}"
+
+class Reservation(models.Model):
+    artwork = models.ForeignKey(Artwork, on_delete=models.CASCADE, related_name='reservations')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reservations')
+    date = models.DateTimeField(auto_now_add=True)
+    security_code_used = models.CharField(max_length=10)
+    
+    class Meta:
+        unique_together = ['artwork', 'user']  # Un usuario solo puede reservar una obra una vez
+    
+    def __str__(self):
+        return f"{self.artwork.title} - {self.user.username}"

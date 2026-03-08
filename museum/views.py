@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Sum, Count, F
 from django.core.mail import send_mail
-from .models import Artwork, Artist, Genre, Sale, Membership
+from .models import Artwork, Artist, Genre, Sale, Membership, Reservation
 from users.models import BuyerProfile
 from django.utils import timezone
 import datetime
@@ -13,7 +13,7 @@ def home(request):
     return render(request, 'museum/home.html', {'featured_artworks': featured_artworks})
 
 def catalog(request):
-    artworks = Artwork.objects.filter(status='AVAILABLE')
+    artworks = Artwork.objects.all()
     
     # Filters
     genre_id = request.GET.get('genre')
@@ -76,29 +76,50 @@ def artist_detail(request, pk):
 def reserve_artwork(request, pk):
     artwork = get_object_or_404(Artwork, pk=pk)
     
+    # Verificar si la obra está disponible
     if artwork.status != 'AVAILABLE':
         messages.error(request, 'This artwork is not available.')
         return redirect('catalog')
         
+    # Verificar si el usuario es comprador
     if not hasattr(request.user, 'buyer_profile'):
         messages.error(request, 'You must be a registered buyer to purchase.')
         return redirect('register')
 
+    # VERIFICAR SI EL USUARIO YA RESERVÓ ESTA OBRA
+    existing_reservation = Reservation.objects.filter(
+        artwork=artwork, 
+        user=request.user
+    ).exists()
+    
+    if existing_reservation:
+        messages.warning(request, 'You have already reserved this artwork.')
+        return redirect('artwork_detail', pk=artwork.pk)
+    
     if request.method == 'POST':
         code = request.POST.get('security_code')
         if code == request.user.buyer_profile.security_code:
+            
+            # DOBLE VERIFICACIÓN: Recargar desde BD por si acaso
+            artwork.refresh_from_db()
+            
+            if artwork.status != 'AVAILABLE':
+                messages.error(request, 'This artwork was just reserved by someone else.')
+                return redirect('catalog')
+            
+            # CREAR LA RESERVA EN BD
+            reservation = Reservation.objects.create(
+                artwork=artwork,
+                user=request.user,
+                security_code_used=code
+            )
+            
+            # Cambiar status de la obra
             artwork.status = 'RESERVED'
             artwork.save()
             
-            # Create a pending sale or just mark as reserved linked to user?
-            # For simplicity, we'll mark reserved and let admin finalize.
-            # In a real app, we'd create a Sale record with status 'PENDING'.
-            
-            # Notify admin (mock)
-            print(f"Artwork {artwork.title} reserved by {request.user.username}")
-            
-            messages.success(request, 'Artwork reserved! An agent will contact you shortly.')
-            return redirect('home')
+            messages.success(request, f'Artwork "{artwork.title}" reserved successfully!')
+            return redirect('artwork_detail', pk=artwork.pk)
         else:
             messages.error(request, 'Invalid security code.')
             
