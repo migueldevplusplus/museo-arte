@@ -80,7 +80,7 @@ DATABASES = {
         'NAME': 'defaultdb',
         'USER': 'avnadmin',
         'PASSWORD': 'AVNS_A74Wlpf8KvAmRiSTpqy',
-        'HOST': '165.232.179.238',  # <--- Usamos la IP que te dio el nslookup
+        'HOST': 'mysql-219ac15-museo-arte.a.aivencloud.com',  # <--- Usamos la IP que te dio el nslookup
         'PORT': '14529',
         'OPTIONS': {
             'ssl': {'ca': None},     # <--- OBLIGATORIO para conectar con Aiven
