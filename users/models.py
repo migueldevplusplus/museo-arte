@@ -15,5 +15,20 @@ class BuyerProfile(models.Model):
     security_code = models.CharField(max_length=10, blank=True, null=True)
     shipping_address = models.TextField(blank=True)
     
+    SECURITY_QUESTIONS = (
+        ('q1', '¿Cuál es tu color favorito?'),
+        ('q2', '¿En qué ciudad naciste?'),
+        ('q3', '¿Cual es el nombre de soltera de tu madre?'),
+        ('q4', '¿Cuál fue el modelo de tu primer coche?'),
+        ('q5', '¿Cuál es el nombre de tu escuela primaria?'),
+    )
+
+    security_question_1 = models.CharField(max_length=2, choices=SECURITY_QUESTIONS, blank=True, null=True)
+    security_answer_1 = models.CharField(max_length=100, blank=True, null=True)
+    security_question_2 = models.CharField(max_length=2, choices=SECURITY_QUESTIONS, blank=True, null=True)
+    security_answer_2 = models.CharField(max_length=100, blank=True, null=True)
+    security_question_3 = models.CharField(max_length=2, choices=SECURITY_QUESTIONS, blank=True, null=True)
+    security_answer_3 = models.CharField(max_length=100, blank=True, null=True)
+    
     def __str__(self):
         return f"Profile for {self.user.username}"
