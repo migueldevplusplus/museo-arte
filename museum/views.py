@@ -132,23 +132,48 @@ def reserve_artwork(request, pk):
     return render(request, 'museum/reserve_artwork.html', {'artwork': artwork})
 
 # Admin Reports
+
+# 1. Listado de obras vendidas en un periodo
 @user_passes_test(lambda u: u.is_staff or u.is_employee)
-def sales_report(request):
+def sold_artworks_report(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     
-    sales = Sale.objects.all()
+    sales = Sale.objects.select_related('artwork', 'artwork__artist', 'artwork__genre', 'buyer').all()
+    
+    if start_date and end_date:
+        sales = sales.filter(date__date__range=[start_date, end_date])
+
+    return render(request, 'museum/reports/sold_artworks_report.html', {
+        'sales': sales,
+        'start_date': start_date or '',
+        'end_date': end_date or '',
+    })
+
+# 2. Resumen de facturación en un periodo
+@user_passes_test(lambda u: u.is_staff or u.is_employee)
+def billing_summary_report(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
+    sales = Sale.objects.select_related('artwork', 'artwork__artist').all()
     
     if start_date and end_date:
         sales = sales.filter(date__date__range=[start_date, end_date])
 
     total_revenue = sales.aggregate(Sum('total'))['total__sum'] or 0
     total_commission = sales.aggregate(Sum('commission'))['commission__sum'] or 0
+    total_subtotal = sales.aggregate(Sum('subtotal'))['subtotal__sum'] or 0
+    total_iva = sales.aggregate(Sum('iva'))['iva__sum'] or 0
     
-    return render(request, 'museum/reports/sales_report.html', {
+    return render(request, 'museum/reports/billing_summary_report.html', {
         'sales': sales,
         'total_revenue': total_revenue,
-        'total_commission': total_commission
+        'total_commission': total_commission,
+        'total_subtotal': total_subtotal,
+        'total_iva': total_iva,
+        'start_date': start_date or '',
+        'end_date': end_date or '',
     })
 
 @user_passes_test(lambda u: u.is_staff or u.is_employee)
@@ -198,14 +223,21 @@ def invoice_detail(request, pk):
 
 @user_passes_test(lambda u: u.is_staff or u.is_employee)
 def membership_report(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    
     memberships = Membership.objects.all()
-    # Add date filtering if needed
+    
+    if start_date and end_date:
+        memberships = memberships.filter(start_date__range=[start_date, end_date])
     
     total_collected = memberships.aggregate(Sum('amount'))['amount__sum'] or 0
     
     return render(request, 'museum/reports/membership_report.html', {
         'memberships': memberships,
-        'total_collected': total_collected
+        'total_collected': total_collected,
+        'start_date': start_date or '',
+        'end_date': end_date or '',
     })
 
 @user_passes_test(lambda u: u.is_staff or u.is_employee)

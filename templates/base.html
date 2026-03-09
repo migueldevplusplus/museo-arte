@@ -34,6 +34,16 @@
                     <li class="nav-item">
                         <a class="nav-link text-warning" href="{% url 'process_sale' %}">Procesar Venta</a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-warning" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Consultas
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'sold_artworks_report' %}">Obras Vendidas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'billing_summary_report' %}">Resumen de Facturación</a></li>
+                            <li><a class="dropdown-item" href="{% url 'membership_report' %}">Membresías</a></li>
+                        </ul>
+                    </li>
                     {% endif %}
                     <li class="nav-item">
                         <span class="nav-link">Bienvenido, {{ user.username }}</span>

@@ -15,6 +15,8 @@ urlpatterns = [
     path('reservations/<int:pk>/cancel/', views.cancel_reservation, name='cancel_reservation'),
     
     # Reports
-    path('reports/sales/', views.sales_report, name='sales_report'),
+    path('reports/sold-artworks/', views.sold_artworks_report, name='sold_artworks_report'),
+    path('reports/billing-summary/', views.billing_summary_report, name='billing_summary_report'),
     path('reports/memberships/', views.membership_report, name='membership_report'),
 ]
+
