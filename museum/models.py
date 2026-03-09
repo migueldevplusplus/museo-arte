@@ -10,6 +10,8 @@ class Genre(models.Model):
         return self.name
 
 
+from django.core.validators import MinValueValidator, MaxValueValidator
+
 class Artist(models.Model):
     name = models.CharField(max_length=200)
     biography = models.TextField()
@@ -17,6 +19,11 @@ class Artist(models.Model):
     nationality = models.CharField(max_length=100)
     photo = models.ImageField(upload_to='artists/', null=True, blank=True)
     genres = models.ManyToManyField(Genre, related_name='artists')
+    commission_percentage = models.DecimalField(
+        max_digits=5, decimal_places=2, default=5.00,
+        validators=[MinValueValidator(5.00), MaxValueValidator(10.00)],
+        help_text="Porcentaje de ganancia del museo (5% a 10%)"
+    )
 
     def __str__(self):
         return self.name
@@ -205,21 +212,39 @@ class Membership(models.Model):
 
 
 class Sale(models.Model):
+    PAYMENT_CHOICES = [
+        ('CREDIT_CARD', 'Tarjeta de Crédito'),
+        ('BANK_TRANSFER', 'Transferencia Bancaria'),
+        ('CASH', 'Efectivo'),
+        ('OTHER', 'Otro'),
+    ]
+
     artwork = models.OneToOneField(Artwork, on_delete=models.CASCADE, related_name='sale')
     buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='purchases')
+    payment_method = models.CharField(max_length=50, choices=PAYMENT_CHOICES, default='CREDIT_CARD', verbose_name="Método de pago")
+    shipping_address = models.TextField(blank=True, verbose_name="Dirección de Envío")
     date = models.DateTimeField(default=timezone.now)
     subtotal = models.DecimalField(max_digits=12, decimal_places=2)
-    iva = models.DecimalField(max_digits=12, decimal_places=2)
-    commission = models.DecimalField(max_digits=12, decimal_places=2)
-    total = models.DecimalField(max_digits=12, decimal_places=2)
+    iva = models.DecimalField(max_digits=12, decimal_places=2, blank=True)
+    commission = models.DecimalField(max_digits=12, decimal_places=2, blank=True)
+    total = models.DecimalField(max_digits=12, decimal_places=2, blank=True)
 
     processed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='sales_processed')
 
     def save(self, *args, **kwargs):
-        if not self.iva:
-            self.iva = self.subtotal * 0.16
-        if not self.total:
-            self.total = float(self.subtotal) + float(self.iva)
+        # 1. Calculate IVA (16%)
+        self.iva = float(self.subtotal) * 0.16
+        
+        # 2. Calculate Museum Commission based on Artist's percentage
+        if self.artwork and self.artwork.artist:
+            percentage = float(self.artwork.artist.commission_percentage)
+            self.commission = float(self.subtotal) * (percentage / 100.0)
+        else:
+            self.commission = 0.0
+
+        # 3. Calculate Total (Subtotal + IVA)
+        self.total = float(self.subtotal) + self.iva
+        
         super().save(*args, **kwargs)
 
     def __str__(self):

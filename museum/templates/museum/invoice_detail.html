@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-10">
+        <!-- Botón para imprimir (opcional, uso de JS nativo) -->
+        <div class="d-flex justify-content-end mb-3 d-print-none">
+            <button onclick="window.print()" class="btn btn-secondary">
+                Imprimir Factura
+            </button>
+        </div>
+
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+                        <h2 class="text-primary mb-3">FACTURA DE VENTA</h2>
+                        <h5 class="mb-1">Museo de Arte Contemporáneo</h5>
+                        <div>Av. Principal, Ciudad, País</div>
+                        <div>Email: contacto@museo.com</div>
+                        <div>Teléfono: +123 456 7890</div>
+                    </div>
+                    <div class="col-sm-6 text-sm-end">
+                        <h4 class="text-muted mb-3">Factura #{{ sale.id|stringformat:"06d" }}</h4>
+                        <div><strong>Fecha de emisión:</strong> {{ sale.date|date:"d/m/Y H:i" }}</div>
+                        <div><strong>Procesada por:</strong> {{ sale.processed_by.username }}</div>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="row mb-4">
+                    <div class="col-sm-6">
+                        <h6 class="text-muted">DATOS DEL COMPRADOR (Cliente)</h6>
+                        <div><strong>Nombre:</strong> {{ sale.buyer.get_full_name|default:sale.buyer.username }}</div>
+                        <div><strong>Email:</strong> {{ sale.buyer.email }}</div>
+                        {% if sale.shipping_address %}
+                        <div class="mt-2"><strong>Dirección de Envío:</strong><br>{{ sale.shipping_address|linebreaksbr }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-6 text-sm-end">
+                        <h6 class="text-muted">DETALLES DEL PAGO</h6>
+                        <div><strong>Método de pago:</strong> {{ sale.get_payment_method_display }}</div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-4">
+                        <thead class="bg-light">
+                            <tr>
+                                <th>Descripción de la Obra</th>
+                                <th>Artista</th>
+                                <th class="text-end">Precio (Subtotal)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <strong>{{ sale.artwork.title }}</strong>
+                                    {% if sale.artwork.genre %}
+                                    <br><small class="text-muted">{{ sale.artwork.genre.name }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>{{ sale.artwork.artist.name }}</td>
+                                <td class="text-end">${{ sale.subtotal }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-7 col-sm-5 ms-auto">
+                        <table class="table table-clear">
+                            <tbody>
+                                <tr>
+                                    <td class="text-end"><strong>Subtotal</strong></td>
+                                    <td class="text-end">${{ sale.subtotal }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end"><strong>IVA (16%)</strong></td>
+                                    <td class="text-end">${{ sale.iva }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end"><strong>Porcentaje Ganancia del Museo ({{ sale.artwork.artist.commission_percentage|floatformat:0 }}%)</strong></td>
+                                    <td class="text-end" style="color: green;">${{ sale.commission }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end"><strong>Total a Pagar</strong></td>
+                                    <td class="text-end"><strong>${{ sale.total }}</strong></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-5 d-print-none">
+                    <a href="{% url 'process_sale' %}" class="btn btn-outline-primary">Procesar Nueva Venta</a>
+                    <a href="{% url 'catalog' %}" class="btn btn-outline-secondary">Volver al Catálogo</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @media print {
+        .d-print-none {
+            display: none !important;
+        }
+        body {
+            background-color: white;
+        }
+        .card {
+            border: none;
+            box-shadow: none !important;
+        }
+    }
+</style>
+{% endblock %}

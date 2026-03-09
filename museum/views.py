@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db.models import Sum, Count, F
 from django.core.mail import send_mail
 from .models import Artwork, Artist, Genre, Sale, Membership, Reservation
+from .forms import SaleForm
 from users.models import BuyerProfile
 from django.utils import timezone
 import datetime
@@ -146,6 +147,51 @@ def sales_report(request):
     })
 
 @user_passes_test(lambda u: u.is_staff or u.is_employee)
+def process_sale(request):
+    reservation_id = request.GET.get('reservation_id')
+    reservation = None
+    initial_data = {}
+    
+    if reservation_id:
+        reservation = get_object_or_404(Reservation, id=reservation_id)
+        # Populate initial form data from the reservation
+        initial_data = {
+            'artwork': reservation.artwork,
+            'buyer': reservation.user,
+            'subtotal': reservation.artwork.price,
+        }
+        if hasattr(reservation.user, 'buyer_profile'):
+            initial_data['shipping_address'] = reservation.user.buyer_profile.shipping_address
+
+    if request.method == 'POST':
+        form = SaleForm(request.POST)
+        if form.is_valid():
+            sale = form.save(commit=False)
+            sale.processed_by = request.user
+            sale.save()
+            
+            # Update artwork status to SOLD
+            artwork = sale.artwork
+            artwork.status = 'SOLD'
+            artwork.save()
+            
+            # If there's a reservation for this artwork, delete it.
+            Reservation.objects.filter(artwork=artwork).delete()
+            
+            messages.success(request, 'Sale processed successfully.')
+            return redirect('invoice_detail', pk=sale.pk)
+    else:
+        form = SaleForm(initial=initial_data)
+        
+    return render(request, 'museum/process_sale.html', {'form': form})
+
+@user_passes_test(lambda u: u.is_staff or u.is_employee)
+def invoice_detail(request, pk):
+    sale = get_object_or_404(Sale, pk=pk)
+    return render(request, 'museum/invoice_detail.html', {'sale': sale})
+
+
+@user_passes_test(lambda u: u.is_staff or u.is_employee)
 def membership_report(request):
     memberships = Membership.objects.all()
     # Add date filtering if needed
@@ -156,3 +202,22 @@ def membership_report(request):
         'memberships': memberships,
         'total_collected': total_collected
     })
+
+@user_passes_test(lambda u: u.is_staff or u.is_employee)
+def manage_reservations(request):
+    reservations = Reservation.objects.filter(artwork__status='RESERVED').order_by('-date')
+    return render(request, 'museum/manage_reservations.html', {'reservations': reservations})
+
+@user_passes_test(lambda u: u.is_staff or u.is_employee)
+def cancel_reservation(request, pk):
+    if request.method == 'POST':
+        reservation = get_object_or_404(Reservation, pk=pk)
+        artwork = reservation.artwork
+        # Revert artwork status to AVAILABLE
+        artwork.status = 'AVAILABLE'
+        artwork.save()
+        # Delete the reservation
+        reservation.delete()
+        messages.success(request, f'La reserva para "{artwork.title}" ha sido cancelada.')
+        
+    return redirect('manage_reservations')
