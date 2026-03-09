@@ -135,3 +135,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 LOGIN_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
+
+# Reservation Timeout Setting
+RESERVATION_TIMEOUT_HOURS = 24
+

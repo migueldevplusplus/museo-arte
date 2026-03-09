@@ -5,15 +5,18 @@ from django.db.models import Sum, Count, F
 from django.core.mail import send_mail
 from .models import Artwork, Artist, Genre, Sale, Membership, Reservation
 from .forms import SaleForm
+from .utils import cleanup_expired_reservations
 from users.models import BuyerProfile
 from django.utils import timezone
 import datetime
 
 def home(request):
+    cleanup_expired_reservations()
     featured_artworks = Artwork.objects.filter(status='AVAILABLE').order_by('-creation_date')[:3]
     return render(request, 'museum/home.html', {'featured_artworks': featured_artworks})
 
 def catalog(request):
+    cleanup_expired_reservations()
     artworks = Artwork.objects.all()
     
     # Filters
@@ -60,6 +63,7 @@ def catalog(request):
     })
 
 def artwork_detail(request, pk):
+    cleanup_expired_reservations()
     artwork = get_object_or_404(Artwork, pk=pk)
     # Resolve to the specialized child instance (Painting, Sculpture, etc.)
     specific = artwork.get_specific_instance()
@@ -75,6 +79,7 @@ def artist_detail(request, pk):
 
 @login_required
 def reserve_artwork(request, pk):
+    cleanup_expired_reservations()
     artwork = get_object_or_404(Artwork, pk=pk)
     
     # Verificar si la obra está disponible
@@ -205,6 +210,7 @@ def membership_report(request):
 
 @user_passes_test(lambda u: u.is_staff or u.is_employee)
 def manage_reservations(request):
+    cleanup_expired_reservations()
     reservations = Reservation.objects.filter(artwork__status='RESERVED').order_by('-date')
     return render(request, 'museum/manage_reservations.html', {'reservations': reservations})
 
