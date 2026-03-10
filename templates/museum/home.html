@@ -1,12 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="p-5 mb-4 bg-light rounded-3">
-    <div class="container-fluid py-5">
-        <h1 class="display-5 fw-bold">Museo de Arte Contemporáneo</h1>
-        <p class="col-md-8 fs-4">Descubre la mejor colección del arte moderno. Navega a través de nuestro catálogo y
-            adquiere piezas únicas.</p>
-        <a class="btn btn-primary btn-lg" href="{% url 'catalog' %}">Descubrir Catálogo</a>
+<div class="p-5 mb-4 text-white"
+    style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); border-radius: 0 0 50px 50px;">
+    <div class="container-fluid py-5 text-center">
+        <h1 class="display-4 fw-bold">Museo de Arte Contemporáneo</h1>
+        <p class="fs-4 mx-auto" style="max-width: 800px;">Descubre la mejor colección del arte moderno. Navega a través
+            de nuestro catálogo y adquiere piezas únicas.</p>
+        <a href="{% url 'catalog' %}" class="btn btn-lg mt-3"
+            style="background: white; color: #0a1928; border: none; padding: 12px 30px; border-radius: 30px; font-weight: 600; box-shadow: 0 4px 15px rgba(255,255,255,0.2); transition: all 0.3s;"
+            onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(255,255,255,0.3)';"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255,255,255,0.2';">Descubrir
+            Catálogo</a>
     </div>
 </div>
 
@@ -14,20 +19,31 @@
 <div class="row">
     {% for artwork in featured_artworks %}
     <div class="col-md-4 mb-4">
-        <div class="card h-100">
+        <div class="card h-100 border-0"
+            style="border-radius: 20px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 10px 30px rgba(10, 25, 40, 0.1);"
+            onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(10, 25, 40, 0.2)';"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(10, 25, 40, 0.1)';">
             {% if artwork.photo %}
             <img src="{{ artwork.photo.url }}" class="card-img-top" alt="{{ artwork.title }}"
                 style="height: 200px; object-fit: cover;">
             {% else %}
-            <div class="bg-secondary text-white d-flex justify-content-center align-items-center"
-                style="height: 200px;">Sin imagen</div>
+            <div class="bg-light text-muted d-flex justify-content-center align-items-center" style="height: 200px;">
+                Sin Imagen
+            </div>
             {% endif %}
             <div class="card-body">
                 <h5 class="card-title">{{ artwork.title }}</h5>
-                <p class="card-text">Hecho por <a href="{% url 'artist_detail' artwork.artist.pk %}">
-                        {{ artwork.artist.name }}</a></p>
-                <p class="card-text"><strong>${{ artwork.price }}</strong></p>
-                <a href="{% url 'artwork_detail' artwork.pk %}" class="btn btn-outline-primary">Ver Detalles</a>
+                <p class="card-text">Hecho por <a href="{% url 'artist_detail' artwork.artist.pk %}"
+                        style="color: #0a1928; text-decoration: underline;">{{ artwork.artist.name }}</a></p>
+                <p class="card-text"><strong class="fs-5">${{ artwork.price }}</strong></p>
+
+                <!-- SIN BADGE DE STATUS (ELIMINADO) -->
+
+                <a href="{% url 'artwork_detail' artwork.pk %}" class="btn w-100"
+                    style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none; padding: 8px 16px; border-radius: 25px; box-shadow: 0 4px 10px rgba(10, 25, 40, 0.2); transition: all 0.3s;"
+                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 15px rgba(10, 25, 40, 0.3)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 10px rgba(10, 25, 40, 0.2';">Ver
+                    Detalles</a>
             </div>
         </div>
     </div>

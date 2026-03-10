@@ -4,21 +4,38 @@
 <div class="row justify-content-center">
     <div class="col-md-4">
         <div class="card">
-            <div class="card-header">
-                <h3>Login</h3>
+            <div class="card-header text-center text-white"
+                style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%);">
+                <h3 class="mb-0">Iniciar sesión</h3>
             </div>
             <div class="card-body">
+
+                <!-- 🔵 Mensaje de error en azul pastel -->
+                {% if form.non_field_errors %}
+                <div class="alert" style="background-color: #e6f0fa; color: #0a1928; border: 1px solid #b0c4de;"
+                    role="alert">
+                    <i class="fas fa-exclamation-circle me-2" style="color: #0a1928;"></i>
+                    Usuario o contraseña incorrectos. Por favor, intenta de nuevo.
+                </div>
+                {% endif %}
+
                 <form method="post">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="id_username" class="form-label">Username</label>
-                        <input type="text" name="username" class="form-control" id="id_username" required>
+                        <label for="id_username" class="form-label">Nombre de usuario</label>
+                        <input type="text" name="username"
+                            class="form-control {% if form.non_field_errors %}is-invalid{% endif %}" id="id_username"
+                            required>
                     </div>
                     <div class="mb-3">
-                        <label for="id_password" class="form-label">Password</label>
-                        <input type="password" name="password" class="form-control" id="id_password" required>
+                        <label for="id_password" class="form-label">Contraseña</label>
+                        <input type="password" name="password"
+                            class="form-control {% if form.non_field_errors %}is-invalid{% endif %}" id="id_password"
+                            required>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Login</button>
+                    <button type="submit" class="btn w-100"
+                        style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none;">Iniciar
+                        sesión</button>
                 </form>
             </div>
         </div>

@@ -5,7 +5,8 @@
     <div class="col-md-10">
         <!-- Botón para imprimir (opcional, uso de JS nativo) -->
         <div class="d-flex justify-content-end mb-3 d-print-none">
-            <button onclick="window.print()" class="btn btn-secondary">
+            <button onclick="window.print()" class="btn px-4 py-2"
+                style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none; border-radius: 30px;">
                 Imprimir Factura
             </button>
         </div>
@@ -14,7 +15,7 @@
             <div class="card-body p-5">
                 <div class="row mb-4">
                     <div class="col-sm-6">
-                        <h2 class="text-primary mb-3">FACTURA DE VENTA</h2>
+                        <h2 class="fw-bold mb-3" style="color: #0a1928;">FACTURA DE VENTA</h2>
                         <h5 class="mb-1">Museo de Arte Contemporáneo</h5>
                         <div>Av. Principal, Ciudad, País</div>
                         <div>Email: contacto@museo.com</div>
@@ -34,9 +35,18 @@
                         <h6 class="text-muted">DATOS DEL COMPRADOR (Cliente)</h6>
                         <div><strong>Nombre:</strong> {{ sale.buyer.get_full_name|default:sale.buyer.username }}</div>
                         <div><strong>Email:</strong> {{ sale.buyer.email }}</div>
-                        {% if sale.shipping_address %}
-                        <div class="mt-2"><strong>Dirección de Envío:</strong><br>{{ sale.shipping_address|linebreaksbr }}</div>
+                        {% with profile=sale.buyer.buyer_profile %}
+                        {% if profile and profile.shipping_address %}
+                        <div class="mt-2">
+                            <strong>Dirección de envío:</strong><br>
+                            {{ profile.shipping_address|linebreaksbr }}
+                        </div>
+                        {% else %}
+                        <div class="mt-2 text-muted">
+                            <em>No se registró dirección de envío.</em>
+                        </div>
                         {% endif %}
+                        {% endwith %}
                     </div>
                     <div class="col-sm-6 text-sm-end">
                         <h6 class="text-muted">DETALLES DEL PAGO</h6>
@@ -81,7 +91,7 @@
                                     <td class="text-end">${{ sale.iva }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-end"><strong>Porcentaje Ganancia del Museo ({{ sale.artwork.artist.commission_percentage|floatformat:0 }}%)</strong></td>
+                                    <td class="text-end"><strong>Porcentaje Ganancia del Museo</strong></td>
                                     <td class="text-end" style="color: green;">${{ sale.commission }}</td>
                                 </tr>
                                 <tr>
@@ -92,10 +102,20 @@
                         </table>
                     </div>
                 </div>
-                
+
                 <div class="text-center mt-5 d-print-none">
-                    <a href="{% url 'process_sale' %}" class="btn btn-outline-primary">Procesar Nueva Venta</a>
-                    <a href="{% url 'catalog' %}" class="btn btn-outline-secondary">Volver al Catálogo</a>
+                    <a href="{% url 'process_sale' %}" class="btn px-4 py-2"
+                        style="background: transparent; border: 2px solid #0a1928; color: #0a1928; border-radius: 30px; transition: all 0.3s;"
+                        onmouseover="this.style.background='#0a1928'; this.style.color='white';"
+                        onmouseout="this.style.background='transparent'; this.style.color='#0a1928';">
+                        Procesar nueva venta
+                    </a>
+                    <a href="{% url 'catalog' %}" class="btn px-4 py-2"
+                        style="background: transparent; border: 2px solid #6c757d; color: #6c757d; border-radius: 30px; transition: all 0.3s;"
+                        onmouseover="this.style.background='#6c757d'; this.style.color='white';"
+                        onmouseout="this.style.background='transparent'; this.style.color='#6c757d';">
+                        Volver al catálogo
+                    </a>
                 </div>
             </div>
         </div>
@@ -107,9 +127,11 @@
         .d-print-none {
             display: none !important;
         }
+
         body {
             background-color: white;
         }
+
         .card {
             border: none;
             box-shadow: none !important;

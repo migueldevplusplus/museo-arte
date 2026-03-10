@@ -1,28 +1,28 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h2>Sales Report</h2>
+<h2>Reporte de ventas</h2>
 
 <form method="get" class="row g-3 mb-4">
     <div class="col-auto">
-        <label for="start_date" class="visually-hidden">Start Date</label>
+        <label for="start_date" class="visually-hidden">Fecha de inicio</label>
         <input type="date" class="form-control" name="start_date" placeholder="Start Date"
             value="{{ request.GET.start_date }}">
     </div>
     <div class="col-auto">
-        <label for="end_date" class="visually-hidden">End Date</label>
+        <label for="end_date" class="visually-hidden">Fecha final</label>
         <input type="date" class="form-control" name="end_date" placeholder="End Date"
             value="{{ request.GET.end_date }}">
     </div>
     <div class="col-auto">
-        <button type="submit" class="btn btn-primary mb-3">Filter</button>
+        <button type="submit" class="btn btn-primary mb-3">Filtrar</button>
     </div>
 </form>
 
 <div class="row mb-4">
     <div class="col-md-6">
         <div class="card text-white bg-success mb-3">
-            <div class="card-header">Total Revenue</div>
+            <div class="card-header">Total Ingresos</div>
             <div class="card-body">
                 <h5 class="card-title">${{ total_revenue }}</h5>
             </div>
@@ -30,7 +30,7 @@
     </div>
     <div class="col-md-6">
         <div class="card text-white bg-info mb-3">
-            <div class="card-header">Total Commission</div>
+            <div class="card-header">Total Comisión</div>
             <div class="card-body">
                 <h5 class="card-title">${{ total_commission }}</h5>
             </div>
@@ -41,13 +41,13 @@
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Date</th>
-            <th>Artwork</th>
-            <th>Buyer</th>
+            <th>Fecha</th>
+            <th>Obra de arte</th>
+            <th>Comprador</th>
             <th>Subtotal</th>
             <th>IVA</th>
             <th>Total</th>
-            <th>Commission</th>
+            <th>Comisión</th>
         </tr>
     </thead>
     <tbody>

@@ -84,12 +84,12 @@ def reserve_artwork(request, pk):
     
     # Verificar si la obra está disponible
     if artwork.status != 'AVAILABLE':
-        messages.error(request, 'This artwork is not available.')
+        messages.error(request, 'Esta obra de arte no está disponible.')
         return redirect('catalog')
         
     # Verificar si el usuario es comprador
     if not hasattr(request.user, 'buyer_profile'):
-        messages.error(request, 'You must be a registered buyer to purchase.')
+        messages.error(request, 'Debes ser un comprador registrado para proceder.')
         return redirect('register')
 
     # VERIFICAR SI EL USUARIO YA RESERVÓ ESTA OBRA
@@ -99,7 +99,7 @@ def reserve_artwork(request, pk):
     ).exists()
     
     if existing_reservation:
-        messages.warning(request, 'You have already reserved this artwork.')
+        messages.warning(request, 'Ya has reservado esta obra de arte.')
         return redirect('artwork_detail', pk=artwork.pk)
     
     if request.method == 'POST':
@@ -110,7 +110,7 @@ def reserve_artwork(request, pk):
             artwork.refresh_from_db()
             
             if artwork.status != 'AVAILABLE':
-                messages.error(request, 'This artwork was just reserved by someone else.')
+                messages.error(request, 'Esta obra de arte acaba de ser reservada por alguien más.')
                 return redirect('catalog')
             
             # CREAR LA RESERVA EN BD
@@ -124,10 +124,10 @@ def reserve_artwork(request, pk):
             artwork.status = 'RESERVED'
             artwork.save()
             
-            messages.success(request, f'Artwork "{artwork.title}" reserved successfully!')
+            messages.success(request, f'Obra "{artwork.title}" reservada satisfactoriamente!')
             return redirect('artwork_detail', pk=artwork.pk)
         else:
-            messages.error(request, 'Invalid security code.')
+            messages.error(request, 'Código de seguridad inválido.')
             
     return render(request, 'museum/reserve_artwork.html', {'artwork': artwork})
 
@@ -208,7 +208,7 @@ def process_sale(request):
             # If there's a reservation for this artwork, delete it.
             Reservation.objects.filter(artwork=artwork).delete()
             
-            messages.success(request, 'Sale processed successfully.')
+            messages.success(request, 'Venta procesada exitosamente.')
             return redirect('invoice_detail', pk=sale.pk)
     else:
         form = SaleForm(initial=initial_data)

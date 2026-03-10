@@ -20,7 +20,7 @@ def create_data():
     picasso, _ = Artist.objects.get_or_create(
         name="Pablo Picasso",
         defaults={
-            "biography": "Pintor español, creador del cubismo.",
+            "biography": "Pablo Picasso (1881-1973) fue un pintor y escultor español, cofundador del Cubismo y uno de los artistas más influyentes del siglo XX, conocido por obras revolucionarias como 'Las Señoritas de Aviñón' (1907) y su mural antibélico 'Guernica' (1937); su carrera abarcó periodos como el Azul y el Rosa, y su increíble productividad (más de 50,000 obras) transformó permanentemente el arte moderno.",
             "nationality": "Española",
             "birth_date": datetime.date(1881, 10, 25),
         },

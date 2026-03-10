@@ -56,7 +56,7 @@ class ArtworkAdmin(admin.ModelAdmin):
         """
         return False
 
-    @admin.action(description='Mark selected artworks as SOLD and generate Invoice')
+    @admin.action(description='Marcar las obras de arte seleccionadas como VENDIDAS y generar factura')
     def mark_as_sold(self, request, queryset):
         for artwork in queryset:
             if artwork.status == 'RESERVED':

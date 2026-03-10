@@ -4,7 +4,7 @@
 <div class="row mt-4">
     <div class="col-12">
         <h2 class="mb-4">Gestión de Reservas Activas</h2>
-        
+
         <div class="card shadow-sm">
             <div class="card-body">
                 {% if reservations %}
@@ -31,10 +31,12 @@
                                 <td><a href="mailto:{{ res.user.email }}">{{ res.user.email }}</a></td>
                                 <td class="text-center">
                                     <div class="d-flex justify-content-center gap-2">
-                                        <a href="{% url 'process_sale' %}?reservation_id={{ res.id }}" class="btn btn-sm btn-success">
+                                        <a href="{% url 'process_sale' %}?reservation_id={{ res.id }}"
+                                            class="btn btn-sm btn-success">
                                             Concretar Venta
                                         </a>
-                                        <form method="post" action="{% url 'cancel_reservation' res.id %}" onsubmit="return confirm('¿Estás seguro de que deseas cancelar la reserva de {{ res.artwork.title }}? La obra volverá a estar Disponible.');">
+                                        <form method="post" action="{% url 'cancel_reservation' res.id %}"
+                                            onsubmit="return confirm('¿Estás seguro de que deseas cancelar la reserva de {{ res.artwork.title }}? La obra volverá a estar Disponible.');">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-sm btn-danger">
                                                 Cancelar Reserva

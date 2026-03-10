@@ -29,15 +29,15 @@ def register(request):
             
             # Send code via email
             send_mail(
-                'Your Security Code',
-                f'Thank you for registering. Your security code for purchases is: {code}',
+                'Tu código de seguridad',
+                f'Gracias por registrarte. Tu código de seguridad para las compras es: {code}',
                 'admin@museum.com',
                 [user.email],
                 fail_silently=False,
             )
             
             login(request, user)
-            messages.success(request, f'Registration successful! Security code sent to {user.email}')
+            messages.success(request, f'Registro exitoso! Código de seguridad enviado a {user.email}')
             return redirect('home')
     else:
         form = BuyerRegistrationForm()

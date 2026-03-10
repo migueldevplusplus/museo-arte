@@ -3,35 +3,53 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
-        <div class="card">
-            <div class="card-header">
-                <h3>Reservar Pieza: {{ artwork.title }}</h3>
+        <div class="card shadow-sm border-0">
+            <div class="card-header text-center text-white py-3"
+                style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); border-radius: 10px 10px 0 0;">
+                <h3 class="mb-0">Reservar Pieza: {{ artwork.title }}</h3>
             </div>
-            <div class="card-body">
-                <p>Por favor ingresa tu código de seguridad para confirmar la reservación.</p>
-                <form method="post">
+            <div class="card-body p-4">
+                <p class="text-muted mb-4">Por favor ingresa tu código de seguridad para confirmar la reservación.</p>
+                <form method="post" id="reserve-form">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="security_code" class="form-label">Código de seguridad</label>
+                        <label for="security_code" class="form-label fw-semibold">Código de seguridad</label>
                         <input type="text" name="security_code" class="form-control" id="security_code" required>
-                        <div class="form-text">Este código fue enviado a su correo luego del registro.</div>
+                        <div class="form-text text-muted small">Este código fue enviado a tu correo luego del registro.
+                        </div>
                     </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-success">Confirmar Reservación</button>
-                        <a href="{% url 'artwork_detail' artwork.pk %}" class="btn btn-link mt-2">Cancelar</a>
-                        <a href="{% url 'recover_code_email' %}" class="text-center text-muted mt-2" style="text-decoration: none;"><small>¿Olvidó su código de seguridad?</small></a>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" id="submit-btn" class="btn w-100 py-2"
+                            style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none; border-radius: 30px;">
+                            Confirmar Reservación
+                        </button>
+
+                        <a href="{% url 'artwork_detail' artwork.pk %}" class="btn btn-link text-decoration-none"
+                            style="color: #0a1928; font-weight: 500;">Cancelar</a>
+
+                        <a href="{% url 'recover_code_email' %}" class="text-center mt-2"
+                            style="color: #6c8eb2; text-decoration: none;">
+                            <small>¿Olvidaste tu código de seguridad?</small>
+                        </a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 <script>
-    // Prevenir dobles clics
-    document.getElementById('reserve-form').addEventListener('submit', function (e) {
-        var btn = document.getElementById('submit-btn');
-        btn.disabled = true;
-        btn.innerHTML = 'Procesando...';
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('reserve-form');
+        const btn = document.getElementById('submit-btn');
+
+        if (form && btn) {
+            form.addEventListener('submit', function (e) {
+                btn.disabled = true;
+                btn.innerHTML = 'Procesando...';
+            });
+        }
     });
 </script>
 {% endblock %}
