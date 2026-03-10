@@ -38,6 +38,20 @@
                     <li class="nav-item">
                         <a class="nav-link text-warning" href="{% url 'process_sale' %}">Procesar Venta</a>
                     </li>
+
+                    <!-- NUEVO MENÚ CRUD -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-warning" href="#" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            CRUD
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'genre_list' %}">Géneros</a></li>
+                            <li><a class="dropdown-item" href="{% url 'artist_list' %}">Artistas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'artwork_list' %}">Obras</a></li>
+                        </ul>
+                    </li>
+
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle text-warning" href="#" role="button"
                             data-bs-toggle="dropdown" aria-expanded="false">

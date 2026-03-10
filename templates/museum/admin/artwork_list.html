@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 style="color: #0a1928;">Obras</h2>
+    <a href="{% url 'artwork_create' %}" class="btn px-4 py-2"
+        style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none; border-radius: 30px;">
+        + Nueva obra
+    </a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+        <table class="table table-hover align-middle">
+            <thead style="background-color: #0a1928; color: white;">
+                <tr>
+                    <th>ID</th>
+                    <th>Imagen</th>
+                    <th>Título</th>
+                    <th>Artista</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for artwork in artworks %}
+                <tr>
+                    <td>{{ artwork.id }}</td>
+                    <td>
+                        {% if artwork.photo %}
+                        <img src="{{ artwork.photo.url }}" alt="{{ artwork.title }}"
+                            style="height: 50px; width: 50px; object-fit: cover; border-radius: 5px;">
+                        {% else %}
+                        <span class="text-muted">Sin imagen</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ artwork.title }}</td>
+                    <td>{{ artwork.artist.name }}</td>
+                    <td>${{ artwork.price }}</td>
+                    <td>
+                        {% if artwork.status == 'AVAILABLE' %}
+                        <span class="badge bg-success">Disponible</span>
+                        {% elif artwork.status == 'RESERVED' %}
+                        <span class="badge bg-warning text-dark">Reservada</span>
+                        {% else %}
+                        <span class="badge bg-danger">Vendida</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{% url 'artwork_update' artwork.pk %}"
+                            class="btn btn-sm btn-outline-primary me-2">Editar</a>
+                        <a href="{% url 'artwork_delete' artwork.pk %}"
+                            class="btn btn-sm btn-outline-danger">Eliminar</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No hay obras cargadas.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

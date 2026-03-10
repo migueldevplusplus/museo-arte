@@ -1,0 +1,293 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header text-center text-white py-3"
+                style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); border-radius: 10px 10px 0 0;">
+                <h3 class="mb-0">{% if object %}Editar{% else %}Nueva{% endif %} obra</h3>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- ========== TIPO DE OBRA ========== -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Tipo de obra</label>
+                        <select name="artwork_type" id="artwork_type" class="form-control" required>
+                            <option value="">- Seleccionar tipo -</option>
+                            <option value="painting" {% if object and object.painting %}selected{% endif %}>Pintura</option>
+                            <option value="sculpture" {% if object and object.sculpture %}selected{% endif %}>Escultura</option>
+                            <option value="photography" {% if object and object.photography %}selected{% endif %}>Fotografía</option>
+                            <option value="ceramic" {% if object and object.ceramic %}selected{% endif %}>Cerámica</option>
+                            <option value="goldsmithing" {% if object and object.goldsmithing %}selected{% endif %}>Orfebrería</option>
+                        </select>
+                    </div>
+
+                    <!-- ========== CAMPOS BASE ========== -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Título</label>
+                        <input type="text" name="title" class="form-control" value="{{ object.title|default:'' }}" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Artista</label>
+                            <select name="artist" class="form-control" required>
+                                {% for artist in artists %}
+                                <option value="{{ artist.id }}">{{ artist.name }}</option>
+                                {% empty %}
+                                <option value="">No hay artistas cargados</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Género</label>
+                            <select name="genre" class="form-control" required>
+                                {% for genre in genres %}
+                                <option value="{{ genre.id }}">{{ genre.name }}</option>
+                                {% empty %}
+                                <option value="">No hay géneros cargados</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Precio ($)</label>
+                            <input type="number" name="price" class="form-control" value="{{ object.price|default:'' }}" step="0.01" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Fecha de creación</label>
+                            <input type="date" name="creation_date" class="form-control" value="{{ object.creation_date|date:'Y-m-d'|default:'' }}" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Estado</label>
+                        <select name="status" class="form-control" required>
+                            <option value="AVAILABLE" {% if object.status == 'AVAILABLE' %}selected{% endif %}>Disponible</option>
+                            <option value="RESERVED" {% if object.status == 'RESERVED' %}selected{% endif %}>Reservada</option>
+                            <option value="SOLD" {% if object.status == 'SOLD' %}selected{% endif %}>Vendida</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Imagen de la obra</label>
+                        <input type="file" name="photo" class="form-control">
+                        {% if object.photo %}
+                        <div class="mt-2">
+                            <img src="{{ object.photo.url }}" alt="Vista previa" style="height: 100px; object-fit: cover;">
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- ========== CAMPOS ESPECÍFICOS ========== -->
+                    <!-- Todos ocultos por defecto, se muestran con JS -->
+
+                    <!-- PINTURA -->
+                    <div id="painting-fields" class="specific-fields" style="display: none;">
+                        <h5 class="mb-3" style="color: #0a1928;">Detalles de Pintura</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Técnica</label>
+                                <select name="technique" class="form-control">
+                                    <option value="oil" {% if object.painting.technique == 'oil' %}selected{% endif %}>Óleo</option>
+                                    <option value="acrylic" {% if object.painting.technique == 'acrylic' %}selected{% endif %}>Acrílico</option>
+                                    <option value="watercolor" {% if object.painting.technique == 'watercolor' %}selected{% endif %}>Acuarela</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Soporte</label>
+                                <select name="support" class="form-control">
+                                    <option value="canvas" {% if object.painting.support == 'canvas' %}selected{% endif %}>Lienzo</option>
+                                    <option value="wood" {% if object.painting.support == 'wood' %}selected{% endif %}>Madera</option>
+                                    <option value="paper" {% if object.painting.support == 'paper' %}selected{% endif %}>Papel</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Altura (cm)</label>
+                                <input type="number" name="height" class="form-control" step="0.1" value="{{ object.painting.height|default:'' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Ancho (cm)</label>
+                                <input type="number" name="width" class="form-control" step="0.1" value="{{ object.painting.width|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ESCULTURA -->
+                    <div id="sculpture-fields" class="specific-fields" style="display: none;">
+                        <h5 class="mb-3" style="color: #0a1928;">Detalles de Escultura</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Material</label>
+                                <input type="text" name="material" class="form-control" value="{{ object.sculpture.material|default:'' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Peso (kg)</label>
+                                <input type="number" name="weight" class="form-control" step="0.1" value="{{ object.sculpture.weight|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">Altura (cm)</label>
+                                <input type="number" name="height" class="form-control" step="0.1" value="{{ object.sculpture.height|default:'' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">Ancho (cm)</label>
+                                <input type="number" name="width" class="form-control" step="0.1" value="{{ object.sculpture.width|default:'' }}">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label fw-semibold">Profundidad (cm)</label>
+                                <input type="number" name="depth" class="form-control" step="0.1" value="{{ object.sculpture.depth|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FOTOGRAFÍA -->
+                    <div id="photography-fields" class="specific-fields" style="display: none;">
+                        <h5 class="mb-3" style="color: #0a1928;">Detalles de Fotografía</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Tipo</label>
+                                <select name="photo_type" class="form-control">
+                                    <option value="digital" {% if object.photography.photo_type == 'digital' %}selected{% endif %}>Digital</option>
+                                    <option value="analog" {% if object.photography.photo_type == 'analog' %}selected{% endif %}>Analógica</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Cámara</label>
+                                <input type="text" name="camera" class="form-control" value="{{ object.photography.camera|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Técnica</label>
+                                <select name="technique" class="form-control">
+                                    <option value="bw" {% if object.photography.technique == 'bw' %}selected{% endif %}>Blanco y negro</option>
+                                    <option value="color" {% if object.photography.technique == 'color' %}selected{% endif %}>Color</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Altura (cm)</label>
+                                <input type="number" name="height" class="form-control" step="0.1" value="{{ object.photography.height|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Ancho (cm)</label>
+                                <input type="number" name="width" class="form-control" step="0.1" value="{{ object.photography.width|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CERÁMICA -->
+                    <div id="ceramic-fields" class="specific-fields" style="display: none;">
+                        <h5 class="mb-3" style="color: #0a1928;">Detalles de Cerámica</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Material</label>
+                                <input type="text" name="material" class="form-control" value="{{ object.ceramic.material|default:'' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Técnica</label>
+                                <input type="text" name="technique" class="form-control" value="{{ object.ceramic.technique|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Tipo de esmalte</label>
+                                <input type="text" name="glaze_type" class="form-control" value="{{ object.ceramic.glaze_type|default:'' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Altura (cm)</label>
+                                <input type="number" name="height" class="form-control" step="0.1" value="{{ object.ceramic.height|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Ancho (cm)</label>
+                                <input type="number" name="width" class="form-control" step="0.1" value="{{ object.ceramic.width|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ORFEBRERÍA -->
+                    <div id="goldsmithing-fields" class="specific-fields" style="display: none;">
+                        <h5 class="mb-3" style="color: #0a1928;">Detalles de Orfebrería</h5>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Material</label>
+                                <select name="material" class="form-control">
+                                    <option value="gold" {% if object.goldsmithing.material == 'gold' %}selected{% endif %}>Oro</option>
+                                    <option value="silver" {% if object.goldsmithing.material == 'silver' %}selected{% endif %}>Plata</option>
+                                    <option value="bronze" {% if object.goldsmithing.material == 'bronze' %}selected{% endif %}>Bronce</option>
+                                    <option value="copper" {% if object.goldsmithing.material == 'copper' %}selected{% endif %}>Cobre</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Tipo de objeto</label>
+                                <input type="text" name="object_type" class="form-control" value="{{ object.goldsmithing.object_type|default:'' }}">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Peso (g)</label>
+                                <input type="number" name="weight" class="form-control" step="0.1" value="{{ object.goldsmithing.weight|default:'' }}">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-semibold">Piedras preciosas</label>
+                                <input type="text" name="gemstones" class="form-control" value="{{ object.goldsmithing.gemstones|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'artwork_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn px-4 py-2"
+                            style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none; border-radius: 30px;">
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const typeSelect = document.getElementById('artwork_type');
+        const allFields = document.querySelectorAll('.specific-fields');
+
+        function hideAllFields() {
+            allFields.forEach(field => field.style.display = 'none');
+        }
+
+        function showFieldsForType(type) {
+            hideAllFields();
+            const target = document.getElementById(type + '-fields');
+            if (target) {
+                target.style.display = 'block';
+            }
+        }
+
+        if (typeSelect) {
+            typeSelect.addEventListener('change', function() {
+                showFieldsForType(this.value);
+            });
+
+            // Mostrar campos si ya hay un tipo seleccionado (edición)
+            if (typeSelect.value) {
+                showFieldsForType(typeSelect.value);
+            }
+        }
+    });
+</script>
+{% endblock %}
