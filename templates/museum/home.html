@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="p-5 mb-4 text-white"
-    style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); border-radius: 0 0 50px 50px;">
+    style="background: linear-gradient(135deg, rgba(10, 25, 40, 0.85) 50%, rgba(26, 47, 63, 0.85) 100%), url('/media/background.jpg') center/cover no-repeat; border-radius: 0 0 50px 50px;">
     <div class="container-fluid py-5 text-center">
         <h1 class="display-4 fw-bold">Museo de Arte Contemporáneo</h1>
         <p class="fs-4 mx-auto" style="max-width: 800px;">Descubre la mejor colección del arte moderno. Navega a través
@@ -19,10 +19,10 @@
 <div class="row">
     {% for artwork in featured_artworks %}
     <div class="col-md-4 mb-4">
-        <div class="card h-100 border-0"
-            style="border-radius: 20px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 10px 30px rgba(10, 25, 40, 0.1);"
-            onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(10, 25, 40, 0.2)';"
-            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(10, 25, 40, 0.1)';">
+            <div class="card h-100 border-0"
+            style="border-radius: 20px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);"
+            onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 12px 30px rgba(0, 0, 0, 0.25)';"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0, 0, 0, 0.15)';">
             {% if artwork.photo %}
             <img src="{{ artwork.photo.url }}" class="card-img-top" alt="{{ artwork.title }}"
                 style="height: 200px; object-fit: cover;">
@@ -41,8 +41,8 @@
 
                 <a href="{% url 'artwork_detail' artwork.pk %}" class="btn w-100"
                     style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none; padding: 8px 16px; border-radius: 25px; box-shadow: 0 4px 10px rgba(10, 25, 40, 0.2); transition: all 0.3s;"
-                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 15px rgba(10, 25, 40, 0.3)';"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 10px rgba(10, 25, 40, 0.2';">Ver
+                    onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 15px rgba(10, 25, 40, 0.3)';"
+                    onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 10px rgba(10, 25, 40, 0.2)';">Ver
                     Detalles</a>
             </div>
         </div>

@@ -60,9 +60,9 @@
             {% for artwork in artworks %}
             <div class="col-md-4 mb-4">
                 <div class="card h-100 border-0 d-flex flex-column"
-                    style="border-radius: 20px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 10px 30px rgba(10, 25, 40, 0.1);"
-                    onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 20px 40px rgba(10, 25, 40, 0.2)';"
-                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 10px 30px rgba(10, 25, 40, 0.1)';">
+                    style="border-radius: 20px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);"
+                    onmouseover="this.style.transform='translateY(-10px)'; this.style.boxShadow='0 12px 30px rgba(0, 0, 0, 0.25)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(0, 0, 0, 0.15)';">
 
                     {% if artwork.photo %}
                     <img src="{{ artwork.photo.url }}" class="card-img-top" alt="{{ artwork.title }}"
@@ -101,7 +101,9 @@
                         <!-- Botón siempre al fondo -->
                         <div class="mt-auto">
                             <a href="{% url 'artwork_detail' artwork.pk %}" class="btn w-100"
-                                style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none; padding: 8px 16px; border-radius: 25px;">Ver
+                                style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none; padding: 8px 16px; border-radius: 25px; box-shadow: 0 4px 10px rgba(10, 25, 40, 0.2); transition: all 0.3s;"
+                                onmouseover="this.style.transform='translateY(-2px) scale(1.02)'; this.style.boxShadow='0 6px 15px rgba(10, 25, 40, 0.3)';"
+                                onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 4px 10px rgba(10, 25, 40, 0.2)';">Ver
                                 Detalles</a>
                         </div>
                     </div>
