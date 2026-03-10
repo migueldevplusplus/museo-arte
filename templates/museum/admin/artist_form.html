@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header text-center text-white py-3"
+                style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); border-radius: 10px 10px 0 0;">
+                <h3 class="mb-0">{% if object %}Editar{% else %}Nuevo{% endif %} artista</h3>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <!-- Fila: Nombre y Nacionalidad -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Nombre</label>
+                            <input type="text" name="name" class="form-control" value="{{ form.name.value|default:'' }}"
+                                required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Nacionalidad</label>
+                            <input type="text" name="nationality" class="form-control"
+                                value="{{ form.nationality.value|default:'' }}" required>
+                        </div>
+                    </div>
+
+                    <!-- Fecha de nacimiento y comisión -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Fecha de nacimiento</label>
+                            <input type="date" name="birth_date" class="form-control"
+                                value="{{ form.birth_date.value|date:'Y-m-d'|default:'' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Comisión (%)</label>
+                            <input type="number" name="commission_percentage" class="form-control"
+                                value="{{ form.commission_percentage.value|default:'8' }}" min="5" max="10">
+                        </div>
+                    </div>
+
+                    <!-- Biografía -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Biografía</label>
+                        <textarea name="biography" class="form-control" rows="4"
+                            required>{{ form.biography.value|default:'' }}</textarea>
+                    </div>
+
+                    <!-- Géneros (ManyToMany) -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Géneros</label>
+                        <select name="genres" class="form-control" multiple size="4">
+                            {% for genre in form.genres.field.queryset %}
+                            <option value="{{ genre.id }}" {% if genre.id in form.genres.value %}selected{% endif %}>
+                                {{ genre.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Mantén Ctrl presionado para seleccionar varios.</small>
+                    </div>
+
+                    <!-- Foto -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Foto del artista</label>
+                        <input type="file" name="photo" class="form-control">
+                        {% if object.photo %}
+                        <div class="mt-2">
+                            <img src="{{ object.photo.url }}" alt="Vista previa"
+                                style="height: 100px; object-fit: cover;">
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'artist_list' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        <button type="submit" class="btn px-4 py-2"
+                            style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none; border-radius: 30px;">
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

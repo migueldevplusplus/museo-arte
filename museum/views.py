@@ -8,6 +8,9 @@ from .forms import SaleForm
 from .utils import cleanup_expired_reservations
 from users.models import BuyerProfile
 from django.utils import timezone
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
 import datetime
 
 def home(request):
@@ -259,3 +262,130 @@ def cancel_reservation(request, pk):
         messages.success(request, f'La reserva para "{artwork.title}" ha sido cancelada.')
         
     return redirect('manage_reservations')
+
+# Mixin para verificar que el usuario es administrador
+class AdminRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_staff
+    
+    def handle_no_permission(self):
+        messages.error(self.request, "No tenés permisos para acceder a esta sección.")
+        return redirect('home')
+
+# ---------- CRUD DE GÉNEROS ----------
+class GenreListView(AdminRequiredMixin, ListView):
+    model = Genre
+    template_name = 'museum/admin/genre_list.html'
+    context_object_name = 'genres'
+
+class GenreCreateView(AdminRequiredMixin, CreateView):
+    model = Genre
+    fields = ['name']
+    template_name = 'museum/admin/genre_form.html'
+    success_url = reverse_lazy('genre_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Género creado correctamente.")
+        return super().form_valid(form)
+
+class GenreUpdateView(AdminRequiredMixin, UpdateView):
+    model = Genre
+    fields = ['name']
+    template_name = 'museum/admin/genre_form.html'
+    success_url = reverse_lazy('genre_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Género actualizado correctamente.")
+        return super().form_valid(form)
+
+class GenreDeleteView(AdminRequiredMixin, DeleteView):
+    model = Genre
+    template_name = 'museum/admin/genre_confirm_delete.html'
+    success_url = reverse_lazy('genre_list')
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Género eliminado correctamente.")
+        return super().delete(request, *args, **kwargs)
+
+# ---------- CRUD DE ARTISTAS ----------
+class ArtistListView(AdminRequiredMixin, ListView):
+    model = Artist
+    template_name = 'museum/admin/artist_list.html'
+    context_object_name = 'artists'
+
+class ArtistCreateView(AdminRequiredMixin, CreateView):
+    model = Artist
+    fields = ['name', 'biography', 'birth_date', 'nationality', 'photo', 'genres', 'commission_percentage']
+    template_name = 'museum/admin/artist_form.html'
+    success_url = reverse_lazy('artist_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Artista creado correctamente.")
+        return super().form_valid(form)
+
+class ArtistUpdateView(AdminRequiredMixin, UpdateView):
+    model = Artist
+    fields = ['name', 'biography', 'birth_date', 'nationality', 'photo', 'genres', 'commission_percentage']
+    template_name = 'museum/admin/artist_form.html'
+    success_url = reverse_lazy('artist_list')
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Artista actualizado correctamente.")
+        return super().form_valid(form)
+
+class ArtistDeleteView(AdminRequiredMixin, DeleteView):
+    model = Artist
+    template_name = 'museum/admin/artist_confirm_delete.html'
+    success_url = reverse_lazy('artist_list')
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Artista eliminado correctamente.")
+        return super().delete(request, *args, **kwargs)
+
+# ---------- CRUD DE OBRAS ----------
+class ArtworkListView(AdminRequiredMixin, ListView):
+    model = Artwork
+    template_name = 'museum/admin/artwork_list.html'
+    context_object_name = 'artworks'
+    ordering = ['creation_date']
+
+class ArtworkCreateView(AdminRequiredMixin, CreateView):
+    model = Artwork
+    fields = ['title', 'artist', 'genre', 'price', 'creation_date', 'photo', 'status']
+    template_name = 'museum/admin/artwork_form.html'
+    success_url = reverse_lazy('artwork_list')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['artists'] = Artist.objects.all()
+        context['genres'] = Genre.objects.all()
+        return context
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Obra creada correctamente.")
+        return super().form_valid(form)
+
+class ArtworkUpdateView(AdminRequiredMixin, UpdateView):
+    model = Artwork
+    fields = ['title', 'artist', 'genre', 'price', 'creation_date', 'photo', 'status']
+    template_name = 'museum/admin/artwork_form.html'
+    success_url = reverse_lazy('artwork_list')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['artists'] = Artist.objects.all()
+        context['genres'] = Genre.objects.all()
+        return context
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Obra actualizada correctamente.")
+        return super().form_valid(form)
+
+class ArtworkDeleteView(AdminRequiredMixin, DeleteView):
+    model = Artwork
+    template_name = 'museum/admin/artwork_confirm_delete.html'
+    success_url = reverse_lazy('artwork_list')
+    
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, "Obra eliminada correctamente.")
+        return super().delete(request, *args, **kwargs)
