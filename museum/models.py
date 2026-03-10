@@ -190,7 +190,7 @@ class Goldsmithing(Artwork):
     def get_detail_fields(self):
         fields = [
             ('Material', self.get_material_display()),
-            ('Tipo de objeto', self.get_object_type_display()),
+            ('Tipo de objeto', self.object_type),
             ('Peso', f'{self.weight} g'),
         ]
         if self.gemstones:
