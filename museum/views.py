@@ -39,9 +39,9 @@ def catalog(request):
         artworks = artworks.filter(price__lte=max_price)
         
     if sort_by == 'price_desc':
-        artworks = artworks.order_by('-price')
+        artworks = artworks.order_by('status', '-price')
     else:
-        artworks = artworks.order_by('price')
+        artworks = artworks.order_by('status', 'price')
 
     genres = Genre.objects.all()
     artists = Artist.objects.all()

@@ -8,6 +8,13 @@ from .forms import BuyerRegistrationForm, CodeRecoveryEmailForm, CodeRecoveryQue
 from .models import BuyerProfile
 from museum.models import Membership
 from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from museum.models import Sale
+from django.contrib.auth import authenticate
+from django.contrib import messages
+from django.core.mail import send_mail
+import random
+import string
 from django.conf import settings
 
 User = get_user_model()
