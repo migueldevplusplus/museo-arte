@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header text-center text-white py-3"
+                style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%);">
+                <h3 class="mb-0">Cambiar correo electrónico</h3>
+            </div>
+            <div class="card-body p-4">
+                
+                {% if step == 'request' %}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Nuevo correo electrónico</label>
+                        <input type="email" name="new_email" class="form-control" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" name="send_code" class="btn"
+                            style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none; border-radius: 30px;">
+                            Enviar código de verificación
+                        </button>
+                    </div>
+                </form>
+
+                {% elif step == 'verify' %}
+                <p class="text-muted">Ingresá el código que enviamos a tu correo actual.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Código de verificación</label>
+                        <input type="text" name="code" class="form-control" required maxlength="6">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" name="verify_code" class="btn"
+                            style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none; border-radius: 30px;">
+                            Verificar y cambiar
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+
+                <div class="text-center mt-3">
+                    <a href="{% url 'profile' %}" class="text-muted">← Volver al perfil</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

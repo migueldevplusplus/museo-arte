@@ -34,5 +34,7 @@ urlpatterns = [
     path('admin-panel/artworks/create/', views.ArtworkCreateView.as_view(), name='artwork_create'),
     path('admin-panel/artworks/<int:pk>/update/', views.ArtworkUpdateView.as_view(), name='artwork_update'),
     path('admin-panel/artworks/<int:pk>/delete/', views.ArtworkDeleteView.as_view(), name='artwork_delete'),
+    
+    path('about/', views.about, name='about'),
 ]
 

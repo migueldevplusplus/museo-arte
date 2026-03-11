@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header text-center text-white py-4"
+                style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%);">
+                <h2 class="mb-0">Sobre Nosotros</h2>
+            </div>
+            <div class="card-body p-5">
+                
+                <h4 class="fw-bold" style="color: #0a1928;">Museo de Arte Contemporáneo</h4>
+                <p class="lead text-muted">Un espacio digital para conectar el arte con las personas.</p>
+                
+                <hr class="my-4" style="border-top: 2px solid #e6f0fa;">
+
+                <h5 class="fw-semibold" style="color: #0a1928;">📌 Nuestra misión</h5>
+                <p class="mb-4" style="text-align: justify;">
+                    Este proyecto nace como parte de la materia de Bases de Datos, con el objetivo de aplicar conceptos de modelado, consultas SQL, integridad referencial y desarrollo web full-stack. A través de esta plataforma, buscamos simular un sistema real de gestión de un museo, permitiendo a los usuarios explorar, reservar y comprar obras de arte, y a los administradores gestionar el catálogo, las ventas y los reportes.
+                </p>
+
+                <h5 class="fw-semibold" style="color: #0a1928;">👥 Equipo desarrollador</h5>
+                <div class="row mt-3">
+                    <div class="col-md-6 mb-3">
+                        <div class="p-3 border rounded" style="background-color: #f8f9fa;">
+                            <h6 class="fw-bold">Samuel Prado</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="p-3 border rounded" style="background-color: #f8f9fa;">
+                            <h6 class="fw-bold">Miguel Mora</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="p-3 border rounded" style="background-color: #f8f9fa;">
+                            <h6 class="fw-bold">Fernando Bolívar</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="p-3 border rounded" style="background-color: #f8f9fa;">
+                            <h6 class="fw-bold">Cristian Bolívar</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3 mx-auto">
+                        <div class="p-3 border rounded" style="background-color: #f8f9fa;">
+                            <h6 class="fw-bold">Gilberto Sifontes</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="my-4" style="border-top: 2px solid #e6f0fa;">
+
+                <h5 class="fw-semibold" style="color: #0a1928;">📅 Tecnologías utilizadas</h5>
+                <ul class="list-inline">
+                    <li class="list-inline-item badge bg-light text-dark px-3 py-2 me-2 mb-2">🐍 Django</li>
+                    <li class="list-inline-item badge bg-light text-dark px-3 py-2 me-2 mb-2">🗄️ MySQL</li>
+                    <li class="list-inline-item badge bg-light text-dark px-3 py-2 me-2 mb-2">🎨 Bootstrap 5</li>
+                    <li class="list-inline-item badge bg-light text-dark px-3 py-2 me-2 mb-2">📦 Aiven Cloud</li>
+                    <li class="list-inline-item badge bg-light text-dark px-3 py-2 me-2 mb-2">⚙️ Git / GitHub</li>
+                </ul>
+
+                <div class="text-center mt-5">
+                    <p class="text-muted">Bases de Datos I - Profesora Maria Herrera</p>
+                    <a href="{% url 'home' %}" class="btn px-4 py-2"
+                        style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none; border-radius: 30px;">
+                        Volver al inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

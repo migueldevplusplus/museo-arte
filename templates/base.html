@@ -13,9 +13,9 @@
     <nav class="navbar navbar-expand-lg navbar-dark mb-4"
         style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); box-shadow: 0 4px 15px rgba(10, 25, 40, 0.3);">
         <div class="container">
-            <a class="navbar-brand" href="/">
-                <i class="fas fa-home" style="font-size: 1.5rem; color: white;"></i>
-            </a>
+            <span class="navbar-brand" style="color: white; font-weight: bold; font-size: 1.5rem;">
+                MAC
+            </span>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar"
                 aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -27,6 +27,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'catalog' %}">Catálogo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'about' %}">Sobre Nosotros</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
@@ -65,8 +68,13 @@
                         </ul>
                     </li>
                     {% endif %}
-                    <li class="nav-item">
-                        <span class="nav-link">Bienvenido, {{ user.username }}</span>
+                    <li class="nav-item d-flex align-items-center">
+                        <span class="nav-link" style="color: #9b9b9b; padding-right: 5px;">Bienvenido,</span>
+                        <a href="{% url 'profile' %}" 
+                            class="nav-link p-0" 
+                            style="color: #ffffff; text-decoration: none;">
+                            {{ user.username }}
+                        </a>
                     </li>
                     <li class="nav-item">
                         <form action="{% url 'logout' %}" method="post" class="d-inline">

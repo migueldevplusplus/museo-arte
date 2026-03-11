@@ -7,6 +7,14 @@ from django.contrib import messages
 from .forms import BuyerRegistrationForm, CodeRecoveryEmailForm, CodeRecoveryQuestionsForm
 from .models import BuyerProfile
 from museum.models import Membership
+from django.contrib.auth.decorators import login_required
+from django.db.models import Sum
+from museum.models import Sale, Membership
+from django.contrib.auth import authenticate
+from django.contrib import messages
+from django.core.mail import send_mail
+import random
+import string
 
 User = get_user_model()
 
@@ -30,7 +38,7 @@ def register(request):
             # Send code via email
             send_mail(
                 'Tu código de seguridad',
-                f'Gracias por registrarte. Tu código de seguridad para las compras es: {code}',
+                f'Gracias por registrarse. Su código de seguridad para las compras es: {code}',
                 'admin@museum.com',
                 [user.email],
                 fail_silently=False,
@@ -106,3 +114,134 @@ def recover_code_questions(request):
 
 def recover_code_success(request):
     return render(request, 'users/recover_code_success.html')
+
+@login_required
+def profile(request):
+    user = request.user
+    
+    # Verificar si el usuario tiene buyer_profile (solo compradores)
+    has_profile = hasattr(user, 'buyer_profile')
+    
+    # Estadísticas de compras (solo si es comprador)
+    purchases = Sale.objects.none()
+    total_purchases = 0
+    total_spent = 0
+    membership = None
+    
+    if has_profile:
+        purchases = Sale.objects.filter(buyer=user).select_related('artwork', 'artwork__artist')
+        total_purchases = purchases.count()
+        total_spent = purchases.aggregate(Sum('total'))['total__sum'] or 0
+        
+        # Membresía activa (si existe)
+        membership = Membership.objects.filter(buyer_profile=user.buyer_profile).first()
+    
+    context = {
+        'user': user,
+        'purchases': purchases,
+        'total_purchases': total_purchases,
+        'total_spent': total_spent,
+        'membership': membership,
+        'join_date': user.date_joined,
+        'has_profile': has_profile,
+    }
+    return render(request, 'users/profile.html', context)
+
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        user = authenticate(username=request.user.username, password=password)
+        
+        if user is not None:
+            user.delete()
+            messages.success(request, 'Su cuenta ha sido eliminada permanentemente.')
+            return redirect('home')
+        else:
+            messages.error(request, 'Contraseña incorrecta. No se eliminó la cuenta.')
+            return redirect('profile')
+    
+    return render(request, 'users/delete_account_confirm.html')
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        password = request.POST.get('password')
+        user = authenticate(username=request.user.username, password=password)
+        
+        if user is not None:
+            # Eliminar usuario (cascade eliminará BuyerProfile y relaciones)
+            user.delete()
+            messages.success(request, 'Su cuenta ha sido eliminada permanentemente.')
+            return redirect('home')
+        else:
+            messages.error(request, 'Contraseña incorrecta. No se eliminó la cuenta.')
+            return redirect('profile')
+    
+    return render(request, 'users/delete_account_confirm.html')
+
+@login_required
+def change_email(request):
+    if request.method == 'POST':
+        if 'send_code' in request.POST:
+            # Generar y enviar código
+            code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+            request.session['email_change_code'] = code
+            request.session['new_email'] = request.POST.get('new_email')
+            
+            send_mail(
+                'Código de verificación - Cambio de email',
+                f'Su código para cambiar su correo electrónico es: {code}',
+                'admin@museum.com',
+                [request.user.email],
+                fail_silently=False,
+            )
+            messages.info(request, 'Se envió un código a su email actual.')
+            return render(request, 'users/change_email.html', {'step': 'verify'})
+        
+        elif 'verify_code' in request.POST:
+            # Verificar código
+            input_code = request.POST.get('code')
+            if input_code == request.session.get('email_change_code'):
+                new_email = request.session.get('new_email')
+                request.user.email = new_email
+                request.user.save()
+                
+                # Limpiar sesión
+                del request.session['email_change_code']
+                del request.session['new_email']
+                
+                messages.success(request, 'Correo electrónico actualizado correctamente.')
+                return redirect('profile')
+            else:
+                messages.error(request, 'Código incorrecto.')
+    
+    return render(request, 'users/change_email.html', {'step': 'request'})
+
+
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        current = request.POST.get('current_password')
+        new = request.POST.get('new_password')
+        confirm = request.POST.get('confirm_password')
+        
+        # Verificar contraseña actual
+        if not request.user.check_password(current):
+            messages.error(request, 'La contraseña actual es incorrecta.')
+            return redirect('change_password')
+        
+        # Verificar que nueva y confirmación coincidan
+        if new != confirm:
+            messages.error(request, 'Las contraseñas nuevas no coinciden.')
+            return redirect('change_password')
+        
+        # Cambiar contraseña
+        request.user.set_password(new)
+        request.user.save()
+        
+        messages.success(request, 'Contraseña actualizada correctamente. Vuelve a iniciar sesión.')
+        return redirect('login')
+    
+    return render(request, 'users/change_password.html')

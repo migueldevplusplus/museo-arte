@@ -389,3 +389,6 @@ class ArtworkDeleteView(AdminRequiredMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, "Obra eliminada correctamente.")
         return super().delete(request, *args, **kwargs)
+
+def about(request):
+    return render(request, 'museum/about.html')
