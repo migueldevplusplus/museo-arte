@@ -8,13 +8,7 @@ from .forms import BuyerRegistrationForm, CodeRecoveryEmailForm, CodeRecoveryQue
 from .models import BuyerProfile
 from museum.models import Membership
 from django.contrib.auth.decorators import login_required
-from django.db.models import Sum
-from museum.models import Sale, Membership
-from django.contrib.auth import authenticate
-from django.contrib import messages
-from django.core.mail import send_mail
-import random
-import string
+from django.conf import settings
 
 User = get_user_model()
 
@@ -39,7 +33,7 @@ def register(request):
             send_mail(
                 'Tu código de seguridad',
                 f'Gracias por registrarse. Su código de seguridad para las compras es: {code}',
-                'admin@museum.com',
+                settings.DEFAULT_FROM_EMAIL,
                 [user.email],
                 fail_silently=False,
             )

@@ -131,7 +131,14 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = 'users.User'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'  # Cambiar por tu servidor SMTP (ej: smtp.gmail.com)
+EMAIL_PORT = 587               # Puerto (587 para TLS, 465 para SSL)
+EMAIL_USE_TLS = True           # Usar TLS
+EMAIL_HOST_USER = 'museoartecontemporaneomac@gmail.com'      # Tu correo electrónico
+EMAIL_HOST_PASSWORD = 'xlyx zvmt xnwc ehvt'     # Tu contraseña o App Password
+DEFAULT_FROM_EMAIL = 'Museo de Arte <museoartecontemporaneomac@gmail.com>'
 
 LOGIN_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
