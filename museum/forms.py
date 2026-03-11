@@ -12,9 +12,13 @@ class SaleForm(forms.ModelForm):
             'shipping_address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'subtotal': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
         }
+        error_messages = {
+            'artwork': {
+                'unique': "Esta obra ya tiene una factura o venta oficial registrada en el sistema. Debes eliminar la venta anterior antes de volver a facturarla."
+            }
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Limit artwork selection to those that are not sold. 
-        # (Admins might want to invoice available or reserved artworks).
+        # Limitar la selección a obras que no estén vendidas.
         self.fields['artwork'].queryset = Artwork.objects.exclude(status='SOLD')
