@@ -181,6 +181,11 @@ def billing_summary_report(request):
 
 @user_passes_test(lambda u: u.is_staff or u.is_employee)
 def process_sale(request):
+    # Security block: You shouldn't be here without pending reservations.
+    if not Reservation.objects.filter(artwork__status='RESERVED').exists():
+        messages.warning(request, "No hay obras reservadas para procesar su venta.")
+        return redirect('manage_reservations')
+
     reservation_id = request.GET.get('reservation_id')
     reservation = None
     initial_data = {}
