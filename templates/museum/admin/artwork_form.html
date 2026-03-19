@@ -69,8 +69,6 @@
                         <label class="form-label fw-semibold">Estado</label>
                         <select name="status" class="form-control" required>
                             <option value="AVAILABLE" {% if object.status == 'AVAILABLE' %}selected{% endif %}>Disponible</option>
-                            <option value="RESERVED" {% if object.status == 'RESERVED' %}selected{% endif %}>Reservada</option>
-                            <option value="SOLD" {% if object.status == 'SOLD' %}selected{% endif %}>Vendida</option>
                         </select>
                     </div>
 
