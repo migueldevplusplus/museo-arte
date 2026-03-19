@@ -124,7 +124,7 @@ Detailed technical documentation available in:
 ## 👨‍💻 Authors
 
 Developed by:
-Miguel Mora
-Samuel Prado
-Fernando Bolívar
+Miguel Mora,
+Samuel Prado,
+Fernando Bolívar, Gilberto Sifontes and
 Cristian Bolívar
