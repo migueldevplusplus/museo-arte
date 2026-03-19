@@ -121,6 +121,10 @@ Detailed technical documentation available in:
 
 ---
 
-## 👨‍💻 Author
+## 👨‍💻 Authors
 
-Developed by **Miguel**  
+Developed by:
+Miguel Mora
+Samuel Prado
+Fernando Bolívar
+Cristian Bolívar
