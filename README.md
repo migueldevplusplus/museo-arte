@@ -6,6 +6,20 @@ This project was built using **Django + MySQL**, focusing on database modeling, 
 
 ---
 
+## 📸 Screenshots
+
+### Home Page
+![Home](screenshots/home.png)
+
+### Catalog
+![Catalog](screenshots/catalog.png)
+
+### Artwork Detail
+![Detail](screenshots/detail.png)
+
+
+---
+
 ## 🚀 Features
 
 ### 🖼️ Artwork Management
@@ -61,7 +75,7 @@ This project was built using **Django + MySQL**, focusing on database modeling, 
 - **One-to-One**: Artwork → Sale  
 
 For full database documentation, see:  
-👉 `DOCUMENTATION.md`
+👉 `documentation.md`
 
 ---
 
@@ -87,23 +101,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
----
 
-## 📸 Screenshots
-
-> (Add your screenshots in the /screenshots folder)
-
-### Home Page
-![Home](screenshots/home.png)
-
-### Catalog
-![Catalog](screenshots/catalog.png)
-
-### Artwork Detail
-![Detail](screenshots/detail.png)
-
-
----
 
 ## 📌 Notes
 
