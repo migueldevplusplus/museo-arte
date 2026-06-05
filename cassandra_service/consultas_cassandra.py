@@ -426,10 +426,18 @@ def main():
     
     session = get_session()
     
-    # Artistas y géneros conocidos (del catálogo del museo)
-    artistas = ["Pablo Picasso", "Salvador Dalí", "Frida Kahlo", 
-                "Diego Rivera", "Joan Miró"]
-    generos = ["Pintura", "Escultura", "Fotografía", "Cerámica", "Orfebrería"]
+    # Obtener artistas y géneros dinámicamente de Cassandra
+    try:
+        rows_artistas = session.execute("SELECT DISTINCT artist_name FROM ventas_por_artista")
+        artistas = [r.artist_name for r in rows_artistas]
+    except Exception:
+        artistas = ["Pablo Picasso", "Salvador Dalí", "Frida Kahlo", "Diego Rivera", "Joan Miró"]
+        
+    try:
+        rows_generos = session.execute("SELECT DISTINCT genre_name FROM ventas_por_genero")
+        generos = [r.genre_name for r in rows_generos]
+    except Exception:
+        generos = ["Pintura", "Escultura", "Fotografía", "Cerámica", "Orfebrería"]
     
     # ── BLOQUE 1: Consultas de Facturación ──
     print("\n\n" + "▓" * 70)
@@ -437,19 +445,32 @@ def main():
     print("▓" * 70)
     
     # Q1: Facturación de un mes específico
+    print("\n>>> Q1.A: Datos Reales Migrados de MySQL (Marzo 2026) <<<")
+    consulta_1_facturacion_mensual(session, 2026, 3)
+    print("\n>>> Q1.B: Datos Sintéticos / Seed (Marzo 2025) <<<")
     consulta_1_facturacion_mensual(session, 2025, 3)
     
-    # Q2: Facturación de un período (enero a junio 2025)
+    # Q2: Facturación de un período (enero a junio)
+    print("\n>>> Q2.A: Datos Reales Migrados de MySQL (Período 2026) <<<")
+    consulta_2_facturacion_periodo(session, 2026, 1, 2026, 6)
+    print("\n>>> Q2.B: Datos Sintéticos / Seed (Período 2025) <<<")
     consulta_2_facturacion_periodo(session, 2025, 1, 2025, 6)
     
     # Q3: Ventas de un artista
-    consulta_3_ventas_por_artista(session, "Pablo Picasso")
-    consulta_3_ventas_por_artista(session, "Salvador Dalí")
+    artista_real = "Steve McCurry" if "Steve McCurry" in artistas else ("Salvador Dalí" if artistas else "Pablo Picasso")
+    artista_prueba = "Pablo Picasso" if "Pablo Picasso" in artistas else (artistas[0] if artistas else "Pablo Picasso")
+    
+    print(f"\n>>> Q3.A: Ventas del Artista Real Migrado: {artista_real} <<<")
+    consulta_3_ventas_por_artista(session, artista_real)
+    print(f"\n>>> Q3.B: Ventas del Artista Sintético: {artista_prueba} <<<")
+    consulta_3_ventas_por_artista(session, artista_prueba)
     
     # Q4: Ventas de un género
-    consulta_4_ventas_por_genero(session, "Pintura")
+    genero_real = "Fotografía" if "Fotografía" in generos else (generos[0] if generos else "Pintura")
+    print(f"\n>>> Q4: Ventas del Género: {genero_real} <<<")
+    consulta_4_ventas_por_genero(session, genero_real)
     
-    # Q5: Ranking de artistas
+    # Q5: Ranking de artistas (con todos los artistas dinámicos)
     consulta_5_ranking_artistas(session, artistas)
     
     # Q6: Ranking de géneros
@@ -461,19 +482,27 @@ def main():
     print("▓" * 70)
     
     # Q7: Eventos por tipo
+    print("\n>>> Q7.A: Auditoría Real de MySQL (Ventas en Marzo 2026) <<<")
+    consulta_7_bitacora_por_tipo(session, "VENTA", 2026, 3)
+    print("\n>>> Q7.B: Auditoría Sintética (Ventas en Marzo 2025) <<<")
     consulta_7_bitacora_por_tipo(session, "VENTA", 2025, 3)
-    consulta_7_bitacora_por_tipo(session, "RESERVA", 2025, 3)
-    consulta_7_bitacora_por_tipo(session, "CAMBIO_ESTATUS", 2025, 3)
     
     # Q8: Resumen de todos los eventos del mes
+    print("\n>>> Q8.A: Resumen de Auditoría Real (Marzo 2026) <<<")
+    consulta_8_todos_los_eventos_mes(session, 2026, 3)
+    print("\n>>> Q8.B: Resumen de Auditoría Sintética (Marzo 2025) <<<")
     consulta_8_todos_los_eventos_mes(session, 2025, 3)
-    consulta_8_todos_los_eventos_mes(session, 2025, 1)
     
     # Q9: Historial de estatus de obras específicas
-    consulta_9_historial_obra(session, 1)   # Guernica
-    consulta_9_historial_obra(session, 5)   # Cabeza de Toro
+    print("\n>>> Q9.A: Historial de Estatus Real (Obra #12 - La nobleza del tiempo de MySQL) <<<")
+    consulta_9_historial_obra(session, 12)
+    print("\n>>> Q9.B: Historial de Estatus Sintético (Obra #1 - Guernica) <<<")
+    consulta_9_historial_obra(session, 1)
     
     # Q10: Listado de obras vendidas en un período
+    print("\n>>> Q10.A: Obras Vendidas Reales (Período 2026) <<<")
+    consulta_10_obras_vendidas_periodo(session, 2026, 1, 2026, 6)
+    print("\n>>> Q10.B: Obras Vendidas Sintéticas (Período 2025) <<<")
     consulta_10_obras_vendidas_periodo(session, 2025, 1, 2025, 6)
     
     close()
@@ -485,3 +514,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
