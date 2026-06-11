@@ -1,0 +1,115 @@
+{% extends 'museum/cassandra/base_cassandra.html' %}
+
+{% block cassandra_content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h4 class="mb-0 text-dark fw-bold">Reporte de Facturación Mensual</h4>
+        <p class="text-muted mb-0">Visualiza el resumen facturado y las comisiones para un mes específico.</p>
+    </div>
+    <span class="badge bg-primary px-3 py-2 fs-6">Query: Q1</span>
+</div>
+
+<!-- Filtros -->
+<div class="card border-0 mb-4 bg-light shadow-sm">
+    <div class="card-body p-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4 col-sm-6">
+                <label for="year" class="form-label fw-semibold text-secondary">Año</label>
+                <select name="year" id="year" class="form-select border-0 shadow-sm">
+                    {% for y in years_range %}
+                        <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4 col-sm-6">
+                <label for="month" class="form-label fw-semibold text-secondary">Mes</label>
+                <select name="month" id="month" class="form-select border-0 shadow-sm">
+                    {% for m in months_range %}
+                        <option value="{{ m }}" {% if m == month %}selected{% endif %}>
+                            {% if m == 1 %}Enero{% elif m == 2 %}Febrero{% elif m == 3 %}Marzo{% elif m == 4 %}Abril{% elif m == 5 %}Mayo{% elif m == 6 %}Junio{% elif m == 7 %}Julio{% elif m == 8 %}Agosto{% elif m == 9 %}Septiembre{% elif m == 10 %}Octubre{% elif m == 11 %}Noviembre{% elif m == 12 %}Diciembre{% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-warning w-100 shadow-sm fw-bold">
+                    <i class="fa-solid fa-filter me-2"></i>Filtrar Reporte
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tarjetas de Estadísticas -->
+<div class="row g-3 mb-4">
+    <div class="col-xl-3 col-sm-6">
+        <div class="card border-0 shadow-sm text-white text-center" style="background: linear-gradient(135deg, #1d976c 0%, #93f9b9 100%); border-radius: 12px;">
+            <div class="card-body py-3">
+                <h6 class="text-uppercase mb-2 text-white-50 fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Ventas Realizadas</h6>
+                <h3 class="mb-0 fw-bold">{{ sales|length }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-sm-6">
+        <div class="card border-0 shadow-sm text-white text-center" style="background: linear-gradient(135deg, #4568dc 0%, #b06ab3 100%); border-radius: 12px;">
+            <div class="card-body py-3">
+                <h6 class="text-uppercase mb-2 text-white-50 fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Subtotal</h6>
+                <h3 class="mb-0 fw-bold">${{ total_subtotal|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-sm-6">
+        <div class="card border-0 shadow-sm text-white text-center" style="background: linear-gradient(135deg, #f857a6 0%, #ff5858 100%); border-radius: 12px;">
+            <div class="card-body py-3">
+                <h6 class="text-uppercase mb-2 text-white-50 fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Comisión Museo</h6>
+                <h3 class="mb-0 fw-bold">${{ total_commission|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-sm-6">
+        <div class="card border-0 shadow-sm text-white text-center" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 12px;">
+            <div class="card-body py-3">
+                <h6 class="text-uppercase mb-2 text-white-50 fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">Total Facturado</h6>
+                <h3 class="mb-0 fw-bold">${{ total_facturado|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabla de Resultados -->
+<div class="table-responsive bg-white rounded shadow-sm">
+    <table class="table table-hover table-striped mb-0 align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col" class="py-3 text-center" style="width: 80px;">ID Venta</th>
+                <th scope="col" class="py-3">Fecha</th>
+                <th scope="col" class="py-3">Obra de Arte</th>
+                <th scope="col" class="py-3">Artista</th>
+                <th scope="col" class="py-3">Género</th>
+                <th scope="col" class="py-3">Comprador</th>
+                <th scope="col" class="py-3 text-end">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sale in sales %}
+                <tr>
+                    <td class="text-center fw-bold text-primary">#{{ sale.sale_id }}</td>
+                    <td>{{ sale.sale_date|date:"Y-m-d" }}</td>
+                    <td><span class="fw-semibold text-dark">{{ sale.artwork_title }}</span></td>
+                    <td>{{ sale.artist_name }}</td>
+                    <td><span class="badge bg-secondary">{{ sale.genre_name }}</span></td>
+                    <td><span class="text-muted"><i class="fa-solid fa-user me-1"></i>{{ sale.buyer_username }}</span></td>
+                    <td class="text-end fw-bold text-success">${{ sale.total|floatformat:2 }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <i class="fa-regular fa-folder-open fs-2 mb-3 d-block text-secondary"></i>
+                        No se encontraron registros de ventas para el período seleccionado.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

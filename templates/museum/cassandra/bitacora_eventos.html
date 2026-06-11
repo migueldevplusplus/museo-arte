@@ -1,0 +1,104 @@
+{% extends 'museum/cassandra/base_cassandra.html' %}
+
+{% block cassandra_content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h4 class="mb-0 text-dark fw-bold">Bitácora de Eventos (Auditoría)</h4>
+        <p class="text-muted mb-0">Monitorea los eventos de seguridad y operaciones registrados en Cassandra.</p>
+    </div>
+    <span class="badge bg-primary px-3 py-2 fs-6">Query: Q7</span>
+</div>
+
+<!-- Filtros -->
+<div class="card border-0 mb-4 bg-light shadow-sm">
+    <div class="card-body p-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3 col-sm-6">
+                <label for="year" class="form-label fw-semibold text-secondary">Año</label>
+                <select name="year" id="year" class="form-select border-0 shadow-sm">
+                    {% for y in years_range %}
+                        <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <label for="month" class="form-label fw-semibold text-secondary">Mes</label>
+                <select name="month" id="month" class="form-select border-0 shadow-sm">
+                    {% for m in months_range %}
+                        <option value="{{ m }}" {% if m == month %}selected{% endif %}>
+                            {% if m == 1 %}Enero{% elif m == 2 %}Febrero{% elif m == 3 %}Marzo{% elif m == 4 %}Abril{% elif m == 5 %}Mayo{% elif m == 6 %}Junio{% elif m == 7 %}Julio{% elif m == 8 %}Agosto{% elif m == 9 %}Septiembre{% elif m == 10 %}Octubre{% elif m == 11 %}Noviembre{% elif m == 12 %}Diciembre{% endif %}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <label for="event_type" class="form-label fw-semibold text-secondary">Tipo de Evento</label>
+                <select name="event_type" id="event_type" class="form-select border-0 shadow-sm">
+                    {% for type in event_types %}
+                        <option value="{{ type }}" {% if type == event_type %}selected{% endif %}>{{ type }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <button type="submit" class="btn btn-warning w-100 shadow-sm fw-bold">
+                    <i class="fa-solid fa-shield-halved me-2"></i>Consultar Bitácora
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tabla de Eventos -->
+<div class="table-responsive bg-white rounded shadow-sm">
+    <table class="table table-hover table-striped mb-0 align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col" class="py-3" style="width: 160px;">Fecha y Hora</th>
+                <th scope="col" class="py-3" style="width: 130px;">Usuario</th>
+                <th scope="col" class="py-3">Descripción</th>
+                <th scope="col" class="py-3" style="width: 120px;">Entidad</th>
+                <th scope="col" class="py-3 text-center" style="width: 100px;">ID Entidad</th>
+                <th scope="col" class="py-3" style="width: 250px;">Valores Cambiados</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+                <tr>
+                    <td class="fw-semibold text-dark">{{ event.event_timestamp|date:"Y-m-d H:i:s" }}</td>
+                    <td>
+                        <span class="badge bg-secondary p-2">
+                            <i class="fa-solid fa-user-shield me-1"></i>{{ event.user_username }}
+                        </span>
+                    </td>
+                    <td style="font-size: 0.9rem;">{{ event.description }}</td>
+                    <td><span class="badge bg-info text-dark">{{ event.entity_type }}</span></td>
+                    <td class="text-center text-muted fw-bold">#{{ event.entity_id }}</td>
+                    <td>
+                        {% if event.old_value or event.new_value %}
+                            <div class="d-flex flex-column gap-1" style="font-size: 0.8rem;">
+                                <div class="text-danger">
+                                    <span class="fw-bold">Anterior:</span> 
+                                    <code class="bg-light px-1 rounded">{{ event.old_value|default:"—" }}</code>
+                                </div>
+                                <div class="text-success">
+                                    <span class="fw-bold">Nuevo:</span> 
+                                    <code class="bg-light px-1 rounded">{{ event.new_value|default:"—" }}</code>
+                                </div>
+                            </div>
+                        {% else %}
+                            <span class="text-muted small">— Sin cambios —</span>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <i class="fa-solid fa-circle-info fs-2 mb-3 d-block text-secondary"></i>
+                        No se registraron eventos del tipo <strong>{{ event_type }}</strong> en {{ month }}/{{ year }}.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

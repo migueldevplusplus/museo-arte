@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <!-- Sidebar de Navegación del Dashboard -->
+    <div class="col-lg-3 col-md-4 mb-4">
+        <div class="card shadow-lg border-0 text-white" 
+             style="background: rgba(10, 25, 40, 0.85); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1);">
+            <div class="card-header border-bottom border-secondary text-center py-4" 
+                 style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                <h5 class="mb-0 text-uppercase tracking-wider fw-bold" style="font-size: 1.1rem; letter-spacing: 1px;">
+                    <i class="fa-solid fa-chart-pie me-2 text-warning"></i>Dashboard Cassandra
+                </h5>
+                <small class="text-white-50">Sprint 2: Query-Driven Reports</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'reporte_ventas_mes' %}" 
+                       class="list-group-item list-group-item-action py-3 text-white border-0 transition-all {% if active_tab == 'ventas_mes' %}active-sidebar-item{% endif %}"
+                       style="background: transparent;">
+                        <div class="d-flex align-items-center">
+                            <span class="icon-box text-center me-3 {% if active_tab == 'ventas_mes' %}bg-warning text-dark{% else %}bg-secondary text-white{% endif %}">
+                                <i class="fa-solid fa-calendar-days"></i>
+                            </span>
+                            <div>
+                                <h6 class="mb-0 fw-semibold">Ventas por Mes</h6>
+                                <small class="text-white-50" style="font-size: 0.75rem;">Q1: Facturación mensual</small>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="{% url 'reporte_ventas_artista' %}" 
+                       class="list-group-item list-group-item-action py-3 text-white border-0 transition-all {% if active_tab == 'ventas_artista' %}active-sidebar-item{% endif %}"
+                       style="background: transparent;">
+                        <div class="d-flex align-items-center">
+                            <span class="icon-box text-center me-3 {% if active_tab == 'ventas_artista' %}bg-warning text-dark{% else %}bg-secondary text-white{% endif %}">
+                                <i class="fa-solid fa-palette"></i>
+                            </span>
+                            <div>
+                                <h6 class="mb-0 fw-semibold">Ventas por Artista</h6>
+                                <small class="text-white-50" style="font-size: 0.75rem;">Q3: Ventas de artistas</small>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'reporte_ventas_genero' %}" 
+                       class="list-group-item list-group-item-action py-3 text-white border-0 transition-all {% if active_tab == 'ventas_genero' %}active-sidebar-item{% endif %}"
+                       style="background: transparent;">
+                        <div class="d-flex align-items-center">
+                            <span class="icon-box text-center me-3 {% if active_tab == 'ventas_genero' %}bg-warning text-dark{% else %}bg-secondary text-white{% endif %}">
+                                <i class="fa-solid fa-masks-theater"></i>
+                            </span>
+                            <div>
+                                <h6 class="mb-0 fw-semibold">Ventas por Género</h6>
+                                <small class="text-white-50" style="font-size: 0.75rem;">Q4: Ventas de géneros</small>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'reporte_bitacora_eventos' %}" 
+                       class="list-group-item list-group-item-action py-3 text-white border-0 transition-all {% if active_tab == 'bitacora' %}active-sidebar-item{% endif %}"
+                       style="background: transparent;">
+                        <div class="d-flex align-items-center">
+                            <span class="icon-box text-center me-3 {% if active_tab == 'bitacora' %}bg-warning text-dark{% else %}bg-secondary text-white{% endif %}">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </span>
+                            <div>
+                                <h6 class="mb-0 fw-semibold">Bitácora de Eventos</h6>
+                                <small class="text-white-50" style="font-size: 0.75rem;">Q7: Auditoría del sistema</small>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'reporte_historial_obra' %}" 
+                       class="list-group-item list-group-item-action py-3 text-white border-0 transition-all {% if active_tab == 'historial_obra' %}active-sidebar-item{% endif %}"
+                       style="background: transparent; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+                        <div class="d-flex align-items-center">
+                            <span class="icon-box text-center me-3 {% if active_tab == 'historial_obra' %}bg-warning text-dark{% else %}bg-secondary text-white{% endif %}">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                            </span>
+                            <div>
+                                <h6 class="mb-0 fw-semibold">Estatus de Obras</h6>
+                                <small class="text-white-50" style="font-size: 0.75rem;">Q9: Historial de estatus</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido del Reporte -->
+    <div class="col-lg-9 col-md-8">
+        <div class="card shadow-lg border-0" 
+             style="background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.4);">
+            <div class="card-body p-4">
+                {% block cassandra_content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .icon-box {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        border-radius: 8px;
+        display: inline-block;
+        font-size: 0.95rem;
+    }
+    .list-group-item:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        transform: translateX(4px);
+    }
+    .transition-all {
+        transition: all 0.2s ease-in-out;
+    }
+    .active-sidebar-item {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        border-left: 4px solid #ffc107 !important;
+        font-weight: bold;
+    }
+    .tracking-wider {
+        letter-spacing: 0.05em;
+    }
+</style>
+{% endblock %}

@@ -1,7 +1,16 @@
 from django.urls import path
 from . import views
+from . import views_cassandra
 
 urlpatterns = [
+    # Cassandra Dashboard & Reports
+    path('cassandra/', views_cassandra.dashboard_home, name='dashboard_home'),
+    path('cassandra/ventas-mes/', views_cassandra.reporte_ventas_mes, name='reporte_ventas_mes'),
+    path('cassandra/ventas-artista/', views_cassandra.reporte_ventas_artista, name='reporte_ventas_artista'),
+    path('cassandra/ventas-genero/', views_cassandra.reporte_ventas_genero, name='reporte_ventas_genero'),
+    path('cassandra/bitacora/', views_cassandra.reporte_bitacora_eventos, name='reporte_bitacora_eventos'),
+    path('cassandra/historial-obra/', views_cassandra.reporte_historial_obra, name='reporte_historial_obra'),
+
     path('', views.home, name='home'),
     path('catalog/', views.catalog, name='catalog'),
     path('artwork/<int:pk>/', views.artwork_detail, name='artwork_detail'),
