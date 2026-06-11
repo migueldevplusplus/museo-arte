@@ -37,5 +37,6 @@ urlpatterns = [
     
     path('about/', views.about, name='about'),
     path('mongo/catalogo/', views.mongo_queries, name='mongo_queries'),
+    path('mongo/obra/<str:oid>/', views.mongo_artwork_detail, name='mongo_artwork_detail'),
 ]
 

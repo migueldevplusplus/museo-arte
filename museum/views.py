@@ -13,6 +13,7 @@ from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 import datetime
 
+from bson import ObjectId
 from db_mongo import obras_col
 
 def home(request):
@@ -443,11 +444,13 @@ def mongo_queries(request):
 
     pipeline.append({"$sort": {sort_field: sort_dir}})
     pipeline.append({"$project": {
-        "title": 1, "artist.name": 1, "genre": 1, "price": 1, "status": 1, "creation_date": 1, "photo": 1, "_id": 0
+        "_id": 1, "title": 1, "artist.name": 1, "genre": 1, "price": 1, "status": 1, "creation_date": 1, "photo": 1
     }})
 
     try:
         obras = list(obras_col.aggregate(pipeline))
+        for obra in obras:
+            obra["oid"] = str(obra.pop("_id"))
     except Exception as e:
         return render(request, 'museum/mongo_queries.html', {"error": str(e)})
 
@@ -460,3 +463,14 @@ def mongo_queries(request):
         "selected_status": status or "",
         "selected_sort": sort_by,
     })
+
+def mongo_artwork_detail(request, oid):
+    try:
+        obra = obras_col.find_one({"_id": ObjectId(oid)})
+    except Exception as e:
+        return render(request, 'museum/mongo_artwork_detail.html', {"error": f"Obra no encontrada: {e}"})
+
+    if not obra:
+        return render(request, 'museum/mongo_artwork_detail.html', {"error": "Obra no encontrada"})
+
+    return render(request, 'museum/mongo_artwork_detail.html', {"obra": obra})
