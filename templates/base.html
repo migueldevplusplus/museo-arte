@@ -29,6 +29,9 @@
                         <a class="nav-link" href="{% url 'catalog' %}">Catálogo</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" href="{% url 'mongo_queries' %}">Catálogo MongoDB</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="{% url 'about' %}">Sobre Nosotros</a>
                     </li>
                 </ul>
@@ -62,6 +65,8 @@
                             <li><a class="dropdown-item" href="{% url 'billing_summary_report' %}">Resumen de
                                     Facturación</a></li>
                             <li><a class="dropdown-item" href="{% url 'membership_report' %}">Membresías</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'mongo_queries' %}">Catálogo MongoDB</a></li>
                         </ul>
                     </li>
                     {% endif %}

@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid py-4">
+    <h2 class="mb-4 text-white">Catálogo MongoDB — Obras de Arte</h2>
+
+    {% if error %}
+    <div class="alert alert-danger">Error al conectar con MongoDB: {{ error }}</div>
+    {% else %}
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm">
+                <div class="card-header text-white" style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%);">
+                    Filtros
+                </div>
+                <div class="card-body">
+                    <form method="get">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Género</label>
+                            <select name="genre" class="form-select">
+                                <option value="">Todos</option>
+                                {% for g in genres %}
+                                <option value="{{ g }}" {% if selected_genre == g %}selected{% endif %}>{{ g }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Artista</label>
+                            <select name="artist" class="form-select">
+                                <option value="">Todos</option>
+                                {% for a in artist_names %}
+                                <option value="{{ a }}" {% if selected_artist == a %}selected{% endif %}>{{ a }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Rango de Precio</label>
+                            <input type="number" name="min_price" class="form-control mb-1" placeholder="Mín"
+                                value="{{ request.GET.min_price }}">
+                            <input type="number" name="max_price" class="form-control" placeholder="Máx"
+                                value="{{ request.GET.max_price }}">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Estado</label>
+                            <select name="status" class="form-select">
+                                <option value="">Todos</option>
+                                <option value="AVAILABLE" {% if selected_status == 'AVAILABLE' %}selected{% endif %}>Disponible</option>
+                                <option value="RESERVED" {% if selected_status == 'RESERVED' %}selected{% endif %}>Reservada</option>
+                                <option value="SOLD" {% if selected_status == 'SOLD' %}selected{% endif %}>Vendida</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Ordenar por</label>
+                            <select name="sort" class="form-select">
+                                <option value="price" {% if selected_sort == 'price' %}selected{% endif %}>Precio: Menor a Mayor</option>
+                                <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Precio: Mayor a Menor</option>
+                                <option value="title" {% if selected_sort == 'title' %}selected{% endif %}>Título A-Z</option>
+                                <option value="title_desc" {% if selected_sort == 'title_desc' %}selected{% endif %}>Título Z-A</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn w-100"
+                            style="background: linear-gradient(135deg, #0a1928 0%, #1a2f3f 100%); color: white; border: none;">
+                            Aplicar Filtros
+                        </button>
+                        <a href="{% url 'mongo_queries' %}" class="btn btn-outline-secondary w-100 mt-2">Limpiar</a>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm mt-3">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">Estadísticas</h6>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1"><strong>Total obras:</strong> {{ obras|length }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            {% if obras %}
+            <div class="table-responsive">
+                <table class="table table-dark table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Artista</th>
+                            <th>Género</th>
+                            <th>Precio</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for obra in obras %}
+                        <tr>
+                            <td>{{ obra.title }}</td>
+                            <td>{{ obra.artist.name }}</td>
+                            <td>{{ obra.genre }}</td>
+                            <td>${{ obra.price|floatformat:2 }}</td>
+                            <td>
+                                {% if obra.status == 'AVAILABLE' %}
+                                <span class="badge bg-success">Disponible</span>
+                                {% elif obra.status == 'RESERVED' %}
+                                <span class="badge bg-warning">Reservada</span>
+                                {% else %}
+                                <span class="badge bg-danger">Vendida</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="alert alert-info">No se encontraron obras con los filtros seleccionados.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% endif %}
+</div>
+{% endblock %}

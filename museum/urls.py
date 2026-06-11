@@ -36,5 +36,6 @@ urlpatterns = [
     path('admin-panel/artworks/<int:pk>/delete/', views.ArtworkDeleteView.as_view(), name='artwork_delete'),
     
     path('about/', views.about, name='about'),
+    path('mongo/catalogo/', views.mongo_queries, name='mongo_queries'),
 ]
 
