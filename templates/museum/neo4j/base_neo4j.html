@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <!-- Sidebar de Navegación del Dashboard -->
+    <div class="col-lg-3 col-md-4 mb-4">
+        <div class="card shadow-lg border-0 text-white" 
+             style="background: rgba(10, 25, 40, 0.85); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.1);">
+            <div class="card-header border-bottom border-secondary text-center py-4" 
+                 style="background: linear-gradient(135deg, #0d3b0d 0%, #2d6a2d 100%); border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                <h5 class="mb-0 text-uppercase tracking-wider fw-bold" style="font-size: 1.1rem; letter-spacing: 1px;">
+                    <i class="fa-solid fa-diagram-project me-2 text-success"></i>Grafo Neo4j
+                </h5>
+                <small class="text-white-50">Sprint 3: Recomendaciones</small>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'neo4j_recomendaciones' %}" 
+                       class="list-group-item list-group-item-action py-3 text-white border-0 transition-all {% if active_tab == 'recomendaciones' %}active-sidebar-item{% endif %}"
+                       style="background: transparent;">
+                        <div class="d-flex align-items-center">
+                            <span class="icon-box text-center me-3 {% if active_tab == 'recomendaciones' %}bg-success text-white{% else %}bg-secondary text-white{% endif %}">
+                                <i class="fa-solid fa-star"></i>
+                            </span>
+                            <div>
+                                <h6 class="mb-0 fw-semibold">Recomendaciones</h6>
+                                <small class="text-white-50" style="font-size: 0.75rem;">Q1: Por género comprado</small>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'neo4j_mismo_artista' %}" 
+                       class="list-group-item list-group-item-action py-3 text-white border-0 transition-all {% if active_tab == 'mismo_artista' %}active-sidebar-item{% endif %}"
+                       style="background: transparent;">
+                        <div class="d-flex align-items-center">
+                            <span class="icon-box text-center me-3 {% if active_tab == 'mismo_artista' %}bg-success text-white{% else %}bg-secondary text-white{% endif %}">
+                                <i class="fa-solid fa-paintbrush"></i>
+                            </span>
+                            <div>
+                                <h6 class="mb-0 fw-semibold">Mismo Artista</h6>
+                                <small class="text-white-50" style="font-size: 0.75rem;">Q2: Obras del mismo artista</small>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'neo4j_obras_relacionadas' %}" 
+                       class="list-group-item list-group-item-action py-3 text-white border-0 transition-all {% if active_tab == 'obras_relacionadas' %}active-sidebar-item{% endif %}"
+                       style="background: transparent;">
+                        <div class="d-flex align-items-center">
+                            <span class="icon-box text-center me-3 {% if active_tab == 'obras_relacionadas' %}bg-success text-white{% else %}bg-secondary text-white{% endif %}">
+                                <i class="fa-solid fa-link"></i>
+                            </span>
+                            <div>
+                                <h6 class="mb-0 fw-semibold">Obras Relacionadas</h6>
+                                <small class="text-white-50" style="font-size: 0.75rem;">Q3: Por género</small>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'neo4j_artistas_similares' %}" 
+                       class="list-group-item list-group-item-action py-3 text-white border-0 transition-all {% if active_tab == 'artistas_similares' %}active-sidebar-item{% endif %}"
+                       style="background: transparent;">
+                        <div class="d-flex align-items-center">
+                            <span class="icon-box text-center me-3 {% if active_tab == 'artistas_similares' %}bg-success text-white{% else %}bg-secondary text-white{% endif %}">
+                                <i class="fa-solid fa-users"></i>
+                            </span>
+                            <div>
+                                <h6 class="mb-0 fw-semibold">Artistas Similares</h6>
+                                <small class="text-white-50" style="font-size: 0.75rem;">Q4: Comparten género</small>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'neo4j_compradores_genero' %}" 
+                       class="list-group-item list-group-item-action py-3 text-white border-0 transition-all {% if active_tab == 'compradores_genero' %}active-sidebar-item{% endif %}"
+                       style="background: transparent; border-bottom-left-radius: 15px; border-bottom-right-radius: 15px;">
+                        <div class="d-flex align-items-center">
+                            <span class="icon-box text-center me-3 {% if active_tab == 'compradores_genero' %}bg-success text-white{% else %}bg-secondary text-white{% endif %}">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                            </span>
+                            <div>
+                                <h6 class="mb-0 fw-semibold">Compradores x Género</h6>
+                                <small class="text-white-50" style="font-size: 0.75rem;">Q5: Por género</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido del Reporte -->
+    <div class="col-lg-9 col-md-8">
+        <div class="card shadow-lg border-0" 
+             style="background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(10px); border-radius: 15px; border: 1px solid rgba(255, 255, 255, 0.4);">
+            <div class="card-body p-4">
+                {% block neo4j_content %}
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .icon-box {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        border-radius: 8px;
+        display: inline-block;
+        font-size: 0.95rem;
+    }
+    .list-group-item:hover {
+        background-color: rgba(255, 255, 255, 0.05) !important;
+        transform: translateX(4px);
+    }
+    .transition-all {
+        transition: all 0.2s ease-in-out;
+    }
+    .active-sidebar-item {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        border-left: 4px solid #28a745 !important;
+        font-weight: bold;
+    }
+    .tracking-wider {
+        letter-spacing: 0.05em;
+    }
+</style>
+{% endblock %}

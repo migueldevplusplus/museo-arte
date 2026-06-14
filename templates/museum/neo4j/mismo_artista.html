@@ -1,0 +1,64 @@
+{% extends 'museum/neo4j/base_neo4j.html' %}
+
+{% block neo4j_content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h4 class="mb-0 text-dark fw-bold">Obras del Mismo Artista</h4>
+        <p class="text-muted mb-0">Obras creadas por artistas que el comprador ya ha adquirido, excluyendo las ya compradas.</p>
+    </div>
+    <span class="badge bg-success px-3 py-2 fs-6">Query: Q2</span>
+</div>
+
+<div class="card border-0 mb-4 bg-light shadow-sm">
+    <div class="card-body p-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-6">
+                <label for="username" class="form-label fw-semibold text-secondary">Comprador</label>
+                <select name="username" id="username" class="form-select border-0 shadow-sm">
+                    <option value="">-- Seleccionar --</option>
+                    {% for b in buyers %}
+                        <option value="{{ b.username }}" {% if b.username == selected_username %}selected{% endif %}>
+                            {{ b.username }} ({{ b.email }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-success w-100 shadow-sm fw-bold">
+                    <i class="fa-solid fa-paintbrush me-2"></i>Buscar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if selected_username %}
+<div class="table-responsive bg-white rounded shadow-sm">
+    <table class="table table-hover table-striped mb-0 align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col" class="py-3">Obra</th>
+                <th scope="col" class="py-3">Artista</th>
+                <th scope="col" class="py-3 text-end">Precio</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for obra in obras %}
+                <tr>
+                    <td><span class="fw-semibold text-dark">{{ obra.obra }}</span></td>
+                    <td>{{ obra.artista }}</td>
+                    <td class="text-end fw-bold text-success">${{ obra.precio|floatformat:2 }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center py-5 text-muted">
+                        <i class="fa-regular fa-paintbrush fs-2 mb-3 d-block text-secondary"></i>
+                        No hay obras disponibles de este artista.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}
