@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from . import views_cassandra
+from . import views_neo4j
 
 urlpatterns = [
     # Cassandra Dashboard & Reports
@@ -10,6 +11,14 @@ urlpatterns = [
     path('cassandra/ventas-genero/', views_cassandra.reporte_ventas_genero, name='reporte_ventas_genero'),
     path('cassandra/bitacora/', views_cassandra.reporte_bitacora_eventos, name='reporte_bitacora_eventos'),
     path('cassandra/historial-obra/', views_cassandra.reporte_historial_obra, name='reporte_historial_obra'),
+
+    # Neo4j Dashboard & Recommendations (Sprint 3)
+    path('neo4j/', views_neo4j.dashboard_neo4j, name='neo4j_dashboard'),
+    path('neo4j/recomendaciones/', views_neo4j.recomendaciones_usuario, name='neo4j_recomendaciones'),
+    path('neo4j/mismo-artista/', views_neo4j.obras_mismo_artista, name='neo4j_mismo_artista'),
+    path('neo4j/obras-relacionadas/', views_neo4j.obras_relacionadas, name='neo4j_obras_relacionadas'),
+    path('neo4j/artistas-similares/', views_neo4j.artistas_similares, name='neo4j_artistas_similares'),
+    path('neo4j/compradores-genero/', views_neo4j.compradores_por_genero, name='neo4j_compradores_genero'),
 
     path('', views.home, name='home'),
     path('catalog/', views.catalog, name='catalog'),

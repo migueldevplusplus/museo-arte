@@ -1,0 +1,70 @@
+{% extends 'museum/neo4j/base_neo4j.html' %}
+
+{% block neo4j_content %}
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h4 class="mb-0 text-dark fw-bold">Compradores por Género</h4>
+        <p class="text-muted mb-0">Compradores que han adquirido obras de un género específico.</p>
+    </div>
+    <span class="badge bg-success px-3 py-2 fs-6">Query: Q5</span>
+</div>
+
+<div class="card border-0 mb-4 bg-light shadow-sm">
+    <div class="card-body p-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-6">
+                <label for="genre_name" class="form-label fw-semibold text-secondary">Género</label>
+                <select name="genre_name" id="genre_name" class="form-select border-0 shadow-sm">
+                    <option value="">-- Seleccionar --</option>
+                    {% for g in genres %}
+                        <option value="{{ g.name }}" {% if g.name == selected_genre %}selected{% endif %}>
+                            {{ g.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-success w-100 shadow-sm fw-bold">
+                    <i class="fa-solid fa-cart-shopping me-2"></i>Buscar Compradores
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if selected_genre %}
+<div class="table-responsive bg-white rounded shadow-sm">
+    <table class="table table-hover table-striped mb-0 align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th scope="col" class="py-3">Comprador</th>
+                <th scope="col" class="py-3">Email</th>
+                <th scope="col" class="py-3 text-center">Obras Compradas</th>
+                <th scope="col" class="py-3">Títulos</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in compradores %}
+                <tr>
+                    <td><span class="fw-semibold text-dark">{{ c.comprador }}</span></td>
+                    <td>{{ c.email }}</td>
+                    <td class="text-center"><span class="badge bg-success fs-6">{{ c.obras_compradas }}</span></td>
+                    <td>
+                        {% for titulo in c.titulos %}
+                            <span class="badge bg-light text-dark me-1">{{ titulo }}</span>
+                        {% endfor %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-5 text-muted">
+                        <i class="fa-regular fa-cart-shopping fs-2 mb-3 d-block text-secondary"></i>
+                        No hay compradores para este género.
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}
