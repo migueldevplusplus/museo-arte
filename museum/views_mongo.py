@@ -1,18 +1,23 @@
 from django.shortcuts import render
-from bson import ObjectId
-from mongo_service.db_mongo import obras_col
+from django.conf import settings
+import httpx
+
+API_URL = getattr(settings, "MONGO_API_URL", "http://localhost:8001")
 
 
 def mongo_queries(request):
     try:
-        genres = sorted(obras_col.distinct("genre"))
-        artist_names = sorted(obras_col.distinct("artist.name"))
+        with httpx.Client() as client:
+            generos_resp = client.get(f"{API_URL}/api/obras/generos", timeout=10)
+            artistas_resp = client.get(f"{API_URL}/api/obras/artistas", timeout=10)
+        generos_resp.raise_for_status()
+        artistas_resp.raise_for_status()
+        genres = generos_resp.json()
+        artist_names = artistas_resp.json()
     except Exception as e:
-        return render(request, 'museum/mongo/queries.html', {"error": str(e)})
+        return render(request, "museum/mongo/queries.html", {"error": str(e)})
 
-    pipeline = []
-    match = {}
-
+    params = {}
     genre = request.GET.get("genre")
     artist = request.GET.get("artist")
     min_price = request.GET.get("min_price")
@@ -21,42 +26,27 @@ def mongo_queries(request):
     sort_by = request.GET.get("sort", "price")
 
     if genre:
-        match["genre"] = genre
+        params["genre"] = genre
     if artist:
-        match["artist.name"] = artist
+        params["artist"] = artist
     if min_price:
-        match.setdefault("price", {})["$gte"] = float(min_price)
+        params["min_price"] = min_price
     if max_price:
-        match.setdefault("price", {})["$lte"] = float(max_price)
+        params["max_price"] = max_price
     if status:
-        match["status"] = status
-
-    if match:
-        pipeline.append({"$match": match})
-
-    sort_field = "price"
-    sort_dir = 1
-    if sort_by == "price_desc":
-        sort_dir = -1
-    elif sort_by == "title":
-        sort_field = "title"
-    elif sort_by == "title_desc":
-        sort_field = "title"
-        sort_dir = -1
-
-    pipeline.append({"$sort": {sort_field: sort_dir}})
-    pipeline.append({"$project": {
-        "_id": 1, "title": 1, "artist.name": 1, "genre": 1, "price": 1, "status": 1, "creation_date": 1, "photo": 1
-    }})
+        params["status"] = status
+    if sort_by:
+        params["sort"] = sort_by
 
     try:
-        obras = list(obras_col.aggregate(pipeline))
-        for obra in obras:
-            obra["oid"] = str(obra.pop("_id"))
+        with httpx.Client() as client:
+            obras_resp = client.get(f"{API_URL}/api/obras", params=params, timeout=10)
+        obras_resp.raise_for_status()
+        obras = obras_resp.json()
     except Exception as e:
-        return render(request, 'museum/mongo/queries.html', {"error": str(e)})
+        return render(request, "museum/mongo/queries.html", {"error": str(e)})
 
-    return render(request, 'museum/mongo/queries.html', {
+    return render(request, "museum/mongo/queries.html", {
         "obras": obras,
         "genres": genres,
         "artist_names": artist_names,
@@ -69,11 +59,15 @@ def mongo_queries(request):
 
 def mongo_artwork_detail(request, oid):
     try:
-        obra = obras_col.find_one({"_id": ObjectId(oid)})
+        with httpx.Client() as client:
+            resp = client.get(f"{API_URL}/api/obras/{oid}", timeout=10)
+        resp.raise_for_status()
+        obra = resp.json()
+    except httpx.HTTPStatusError as e:
+        if e.response.status_code == 404:
+            return render(request, "museum/mongo/artwork_detail.html", {"error": "Obra no encontrada"})
+        return render(request, "museum/mongo/artwork_detail.html", {"error": str(e)})
     except Exception as e:
-        return render(request, 'museum/mongo/artwork_detail.html', {"error": f"Obra no encontrada: {e}"})
+        return render(request, "museum/mongo/artwork_detail.html", {"error": str(e)})
 
-    if not obra:
-        return render(request, 'museum/mongo/artwork_detail.html', {"error": "Obra no encontrada"})
-
-    return render(request, 'museum/mongo/artwork_detail.html', {"obra": obra})
+    return render(request, "museum/mongo/artwork_detail.html", {"obra": obra})

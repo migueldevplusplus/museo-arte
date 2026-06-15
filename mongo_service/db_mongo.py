@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
-load_dotenv()
+env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+load_dotenv(env_path)
 
 MONGO_URI = os.getenv("MONGO_URI")
 CA_FILE = os.getenv("MONGO_CA_FILE")
