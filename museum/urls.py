@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from . import views_cassandra
 from . import views_neo4j
+from . import views_mongo
 
 urlpatterns = [
     # Cassandra Dashboard & Reports
@@ -54,7 +55,7 @@ urlpatterns = [
     path('admin-panel/artworks/<int:pk>/delete/', views.ArtworkDeleteView.as_view(), name='artwork_delete'),
     
     path('about/', views.about, name='about'),
-    path('mongo/catalogo/', views.mongo_queries, name='mongo_queries'),
-    path('mongo/obra/<str:oid>/', views.mongo_artwork_detail, name='mongo_artwork_detail'),
+    path('mongo/catalogo/', views_mongo.mongo_queries, name='mongo_queries'),
+    path('mongo/obra/<str:oid>/', views_mongo.mongo_artwork_detail, name='mongo_artwork_detail'),
 ]
 

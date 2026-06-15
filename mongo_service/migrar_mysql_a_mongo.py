@@ -1,7 +1,7 @@
 import mysql.connector
 import os
 from dotenv import load_dotenv
-from db_mongo import obras_col  # colección "obras" en MongoDB
+from mongo_service.db_mongo import obras_col  # colección "obras" en MongoDB
 import datetime
 from decimal import Decimal
 

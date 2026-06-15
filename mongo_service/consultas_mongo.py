@@ -1,4 +1,4 @@
-from db_mongo import obras_col  # colección 'obras' de MongoDB
+from mongo_service.db_mongo import obras_col  # colección 'obras' de MongoDB
 
 # ------------------------------------------------------------
 # Consulta 1: Filtrar por precio, género y disponibilidad
